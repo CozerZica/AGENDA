@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Demandas">
+<link rel="manifest" href="manifest.json">
+<title>Central Mateus — Agenda, Tarefas & CRM</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+  }
+  .card-SR         { border-left: 4px solid #64748B; }
+  .card-Otimize    { border-left: 4px solid #16A34A; }
+  .card-Sette      { border-left: 4px solid #EA580C; }
+  .card-Reforma    { border-left: 4px solid #2563EB; }
+  .card-Particular { border-left: 4px solid #CA8A04; }
+
+  .cal-SR         { background: #F1F5F9; border-left: 4px solid #64748B; }
+  .cal-Otimize    { background: #ECFDF5; border-left: 4px solid #16A34A; }
+  .cal-Sette      { background: #FFF7ED; border-left: 4px solid #EA580C; }
+  .cal-Reforma    { background: #EFF6FF; border-left: 4px solid #2563EB; }
+  .cal-Particular { background: #FEFCE8; border-left: 4px solid #CA8A04; }
+
+  .badge-SR         { background: #F1F5F9; color: #334155; }
+  .badge-Otimize    { background: #DCFCE7; color: #166534; }
+  .badge-Sette      { background: #FFEDD5; color: #9A3412; }
+  .badge-Reforma    { background: #DBEAFE; color: #1E40AF; }
+  .badge-Particular { background: #FEF9C3; color: #854D0E; }
+
+  .temp-Quente { background: #FEE2E2; color: #991B1B; }
+  .temp-Morno  { background: #FEF3C7; color: #92400E; }
+  .temp-Frio   { background: #E0F2FE; color: #075985; }
+
+  .dot-SR         { background: #64748B; }
+  .dot-Otimize    { background: #16A34A; }
+  .dot-Sette      { background: #EA580C; }
+  .dot-Reforma    { background: #2563EB; }
+  .dot-Particular { background: #CA8A04; }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+  }
+  .view-enter { animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
+  .modal-card { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .pulse-late { animation: pulseSoft 1.8s ease-in-out infinite; }
+  .card-lift { transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease; }
+  .card-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px rgba(15, 23, 42, 0.16); }
+  .dragging { opacity: 0.45; transform: rotate(1.5deg) scale(0.98); }
+  .drop-col { transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; }
+  .drag-over { background: #EFF6FF !important; border-color: #3B82F6 !important; box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.25); }
+  .btn-press { transition: transform 0.12s ease, background-color 0.15s ease; }
+  .btn-press:active { transform: scale(0.96); }
+</style>
+</head>
+<body class="text-slate-900 min-h-screen pb-16">
+
+  <header class="bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-4 overflow-x-auto">
+        <div class="flex items-center gap-2.5 shrink-0">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">MC</div>
+          <div class="hidden md:block leading-tight">
+            <div class="font-bold text-sm tracking-tight text-slate-900">Central Mateus</div>
+            <div id="connStatusLabel" class="text-[10px] font-medium text-emerald-600">Conectando...</div>
+          </div>
+        </div>
+
+        <nav class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl" aria-label="Navegação principal">
+          <button data-tab="agenda" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agenda</span>
+          </button>
+          <button data-tab="tarefas" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+            <i data-lucide="kanban" class="w-3.5 h-3.5"></i><span>Tarefas</span>
+          </button>
+          <button data-tab="followups" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i><span>Follow-ups</span>
+            <span id="navFollowBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">0</span>
+          </button>
+          <button data-tab="crm" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i><span>CRM</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btnSyncNow" title="Atualizar do Google" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+        <button id="btnOpenConnect" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5">
+          <span id="connDot" class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="hidden sm:inline">PIN</span>
+        </button>
+        <button id="btnOpenAudit" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Log</span>
+        </button>
+        <button id="btnPrimaryAdd" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm cursor-pointer inline-flex items-center gap-1">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnPrimaryLabel">Novo</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-5 space-y-5">
+
+    <form id="quickForm" class="bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2 flex items-center gap-2.5 shadow-sm focus-within:ring-2 focus-within:ring-slate-900/15 focus-within:border-slate-400 transition">
+      <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+      </div>
+      <input id="quickInput" type="text" placeholder="Captura rápida: 'cobrar extrato Alfa sexta', 'marcar reunião Rafael SR hoje 11h' ou 'lead João Otimize quente'..." class="flex-1 py-1.5 text-sm bg-transparent focus:outline-none">
+      <button type="submit" class="btn-press px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold cursor-pointer shrink-0">Capturar</button>
+    </form>
+
+    <!-- ABA 1: AGENDA -->
+    <section id="tab-agenda" class="view-enter space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div class="lg:col-span-9 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>Google Agenda (08h – 18h)
+              </h2>
+              <div class="hidden md:flex items-center gap-2.5 text-[11px] font-medium text-slate-500">
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-SR"></span>SR</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Otimize"></span>Otimize</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Sette"></span>Sette</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Reforma"></span>Reforma</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Particular"></span>Particular</span>
+              </div>
+            </div>
+            <div class="inline-flex rounded-xl border border-slate-200 p-0.5 bg-slate-100 text-xs font-semibold">
+              <button id="calBtnDia" class="px-3 py-1 rounded-lg cursor-pointer transition">Hoje</button>
+              <button id="calBtnSemana" class="px-3 py-1 rounded-lg cursor-pointer transition">Semana</button>
+            </div>
+          </div>
+          <div id="calendarContainer" class="overflow-x-auto"></div>
+        </div>
+
+        <aside class="lg:col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Top 3 de Hoje</h2>
+              <p class="text-[11px] text-slate-500">Prazo legal → Cliente → Crescimento</p>
+            </div>
+            <span id="lateCountPill" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 pulse-late"></span>
+          </div>
+          <div id="prioHojeList" class="space-y-2.5"></div>
+          <button data-tab="tarefas" class="btn-press w-full py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer flex items-center justify-center gap-1.5">
+            <span>Abrir quadro Trello</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ABA 2: TAREFAS -->
+    <section id="tab-tarefas" class="hidden view-enter space-y-4">
+      <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-[200px]">
+          <div class="text-xs font-semibold text-slate-600">Progresso</div>
+          <div class="w-36 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div id="taskProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+          <span id="taskProgressText" class="text-xs font-bold text-slate-700">0%</span>
+        </div>
+        <div id="frontFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
+      </div>
+      <div id="trelloBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start"></div>
+    </section>
+
+    <!-- ABA 3: FOLLOW-UPS -->
+    <section id="tab-followups" class="hidden view-enter space-y-4">
+      <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm max-w-3xl">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">Follow-ups para Cobrar</h2>
+            <p class="text-xs text-slate-500">Operacional + Propostas do CRM · "Cobrei" joga +2 dias úteis e soma no contador</p>
+          </div>
+          <span id="followupCountBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800"></span>
+        </div>
+        <div id="followupsList" class="divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <!-- ABA 4: CRM -->
+    <section id="tab-crm" class="hidden view-enter space-y-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
+          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-slate-400"></i>Leads Ativos</div>
+          <div id="crmKpiAtivos" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
+          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="flame" class="w-3.5 h-3.5 text-red-500"></i>Quentes</div>
+          <div id="crmKpiQuentes" class="text-2xl font-extrabold text-red-600 mt-1">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
+          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5 text-emerald-600"></i>Recorrente</div>
+          <div id="crmKpiMensal" class="text-2xl font-extrabold text-emerald-700 mt-1">R$ 0/mês</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
+          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-600"></i>Projetos</div>
+          <div id="crmKpiProjetos" class="text-2xl font-extrabold text-blue-700 mt-1">R$ 0</div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div id="crmFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
+        <div id="crmTempFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
+      </div>
+      <div id="crmBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start"></div>
+    </section>
+
+  </main>
+
+  <!-- Modal Detalhes Tarefa -->
+  <div id="cardModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <span id="modalFrontBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5"></span>
+          <input id="modalTitleInput" type="text" class="w-full text-base font-bold text-slate-900 border border-transparent hover:border-slate-200 focus:border-slate-400 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
+        </div>
+        <button id="closeCardModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Coluna</label>
+          <select id="modalStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="inbox">Caixa de Entrada</option>
+            <option value="todo">A Fazer</option>
+            <option value="waiting">Aguardando / Follow-up</option>
+            <option value="done">Concluído</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Vencimento</label>
+          <input id="modalDue" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Frente</label>
+          <select id="modalFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="SR">SR (Cinza)</option>
+            <option value="Otimize">Otimize (Verde)</option>
+            <option value="Sette">Sette (Laranja)</option>
+            <option value="Reforma">Reforma (Azul)</option>
+            <option value="Particular">Particular (Amarelo)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Prioridade</label>
+          <select id="modalPriority" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="1">1 · Prazo legal / multa</option>
+            <option value="2">2 · Cliente / receita</option>
+            <option value="3">3 · Crescimento</option>
+            <option value="4">4 · Resto</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="modalCobreiBtn" class="btn-press px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-xs cursor-pointer"></button>
+        <button id="modalSaveFields" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Salvar</button>
+        <button id="modalDeleteCard" class="btn-press ml-auto px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs cursor-pointer">Excluir</button>
+      </div>
+      <div class="border-t border-slate-100 pt-3">
+        <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Comentários & Histórico</h4>
+        <div id="modalComments" class="space-y-2 max-h-44 overflow-y-auto mb-2.5"></div>
+        <div class="flex gap-2">
+          <input id="newCommentInput" type="text" placeholder="Escrever comentário ou atualização..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          <button id="addCommentBtn" class="btn-press px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes Lead CRM -->
+  <div id="leadModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span id="leadFrontBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
+            <span id="leadTempBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
+          </div>
+          <input id="leadModalNameInput" type="text" class="w-full text-base font-bold text-slate-900 border border-transparent hover:border-slate-200 focus:border-slate-400 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
+          <p id="leadModalMeta" class="text-xs text-slate-500 mt-0.5"></p>
+        </div>
+        <button id="closeLeadModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Etapa do Funil</label>
+          <select id="leadStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="novo">Novo Lead</option>
+            <option value="diagnostico">Diagnóstico / Reunião</option>
+            <option value="proposta">Proposta Enviada</option>
+            <option value="fechado">Fechado</option>
+            <option value="perdido">Perdido (Arquivar)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Temperatura</label>
+          <select id="leadTemp" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="Quente">Quente</option>
+            <option value="Morno">Morno</option>
+            <option value="Frio">Frio</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Como chegou</label>
+          <select id="leadOrigin" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option>Indicação</option>
+            <option>WhatsApp</option>
+            <option>Instagram</option>
+            <option>Google / Site</option>
+            <option>Parceiro (Sette/Tiago)</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Frente</label>
+          <select id="leadFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="Otimize">Otimize (Verde)</option>
+            <option value="SR">SR (Cinza)</option>
+            <option value="Sette">Sette (Laranja)</option>
+            <option value="Reforma">Reforma (Azul)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Valor (R$)</label>
+          <div class="flex gap-1.5">
+            <input id="leadValue" type="number" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <select id="leadUnit" class="border border-slate-300 rounded-xl px-2 py-2 text-xs">
+              <option value="/mês">/mês</option>
+              <option value="projeto">projeto</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-500 mb-1">Próximo Contato</label>
+          <input id="leadNextDate" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+        </div>
+      </div>
+      <div class="text-xs">
+        <label class="block font-semibold text-slate-500 mb-1">Próximo passo combinado</label>
+        <input id="leadNextStep" type="text" placeholder="Ex: Enviar proposta revisada até quinta..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="leadCobreiBtn" class="btn-press px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-xs cursor-pointer"></button>
+        <button id="leadOnboardingBtn" class="hidden btn-press px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs cursor-pointer">Criar Onboarding</button>
+        <button id="leadSaveBtn" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Salvar</button>
+        <button id="leadDeleteBtn" class="btn-press ml-auto px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs cursor-pointer">Excluir</button>
+      </div>
+      <div class="border-t border-slate-100 pt-3">
+        <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Histórico da Negociação</h4>
+        <div id="leadComments" class="space-y-2 max-h-44 overflow-y-auto mb-2.5"></div>
+        <div class="flex gap-2">
+          <input id="newLeadCommentInput" type="text" placeholder="Registrar retorno do lead..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs">
+          <button id="addLeadCommentBtn" class="btn-press px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nova Demanda -->
+  <div id="newTaskModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">Nova Demanda</h3>
+        <button id="closeNewTask" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Título</label>
+          <input id="ntTitle" type="text" placeholder="Ex: Cobrar documento do cliente..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Frente</label>
+            <select id="ntFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option value="Otimize">Otimize (Verde)</option>
+              <option value="SR">SR (Cinza)</option>
+              <option value="Sette">Sette (Laranja)</option>
+              <option value="Reforma">Reforma (Azul)</option>
+              <option value="Particular">Particular (Amarelo)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Tipo</label>
+            <select id="ntType" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option>Follow-up</option>
+              <option>Tarefa</option>
+              <option>Entrega/prazo</option>
+              <option>Marcar reunião</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Prioridade</label>
+            <select id="ntPriority" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option value="1">1 · Prazo legal / multa</option>
+              <option value="2" selected>2 · Cliente / receita</option>
+              <option value="3">3 · Crescimento</option>
+              <option value="4">4 · Resto</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Vencimento</label>
+            <input id="ntDue" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancelNewTask" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmNewTask" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Criar Demanda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Novo Lead -->
+  <div id="newLeadModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">Novo Lead (CRM)</h3>
+        <button id="closeNewLead" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Nome do Lead / Empresa</label>
+          <input id="nlName" type="text" placeholder="Ex: Clínica Vida Plena" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Frente</label>
+            <select id="nlFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option value="Otimize">Otimize (Verde)</option>
+              <option value="SR">SR (Cinza)</option>
+              <option value="Sette">Sette (Laranja)</option>
+              <option value="Reforma">Reforma (Azul)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Temperatura</label>
+            <select id="nlTemp" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option value="Quente">Quente</option>
+              <option value="Morno" selected>Morno</option>
+              <option value="Frio">Frio</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Como chegou</label>
+            <select id="nlOrigin" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option>Indicação</option>
+              <option>WhatsApp</option>
+              <option>Instagram</option>
+              <option>Google / Site</option>
+              <option>Parceiro (Sette/Tiago)</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Em que passo está</label>
+            <select id="nlStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <option value="novo">Novo Lead</option>
+              <option value="diagnostico">Diagnóstico / Reunião</option>
+              <option value="proposta">Proposta Enviada</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Valor (R$)</label>
+            <div class="flex gap-1">
+              <input id="nlValue" type="number" value="2500" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+              <select id="nlUnit" class="border border-slate-300 rounded-xl px-1.5 py-2 text-xs">
+                <option value="/mês">/mês</option>
+                <option value="projeto">projeto</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Próximo contato</label>
+            <input id="nlNextDate" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Contato / Quem indicou</label>
+          <input id="nlContact" type="text" placeholder="Ex: Dr. Marcelo · (48) 99999-0000" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Próximo passo combinado</label>
+          <input id="nlNextStep" type="text" placeholder="Ex: Agendar diagnóstico ou enviar proposta" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancelNewLead" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmNewLead" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Salvar Lead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agendar em Horário Livre -->
+  <div id="slotModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">Agendar compromisso (1h)</h3>
+        <button id="closeSlotModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <p id="slotLabel" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl"></p>
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Título</label>
+          <input id="slotTitle" type="text" placeholder="Ex: Reunião com cliente..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Agenda / Frente</label>
+          <select id="slotFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <option value="SR">SR Contabilidade (Cinza)</option>
+            <option value="Otimize">Otimize (Verde)</option>
+            <option value="Sette">Consultoria Sette (Laranja)</option>
+            <option value="Reforma">Consultoria Reforma (Azul)</option>
+            <option value="Particular">Pessoal Mateus (Amarelo)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancelSlotModal" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmSlotBtn" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Salvar na Agenda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal PIN / Conexão Google -->
+  <div id="connectModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">Conexão Google & PIN</h3>
+        <button id="closeConnectModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <p class="text-xs text-slate-500">Já pré-configurado com o seu Apps Script. Se você trocou o PIN no <code>Code.gs</code>, informe aqui.</p>
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">URL do Apps Script (/exec)</label>
+          <input id="cfgUrlInput" type="url" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">PIN Pessoal</label>
+          <input id="cfgPinInput" type="password" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="saveConnectBtn" class="btn-press px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer">Salvar e Sincronizar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Log de Auditoria -->
+  <div id="auditModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">Log de Auditoria</h3>
+        <button id="closeAuditModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <div id="auditList" class="divide-y divide-slate-100 text-xs"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-xl hidden z-50"></div>
+
+<script>
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwaNmGusJyK8SrLZSROtnfortnw4JFbDykrYPW7_DbYOItdc9AabsgSODiYJpN2qwDSyg/exec';
+const DEFAULT_API_PIN = '202600';
+
+const FRONTS = {
+  SR:         { label: 'SR', colorName: 'Cinza' },
+  Otimize:    { label: 'Otimize', colorName: 'Verde' },
+  Sette:      { label: 'Sette', colorName: 'Laranja' },
+  Reforma:    { label: 'Reforma', colorName: 'Azul' },
+  Particular: { label: 'Particular', colorName: 'Amarelo' }
+};
+
+const STAGES = [
+  { id: 'inbox',   title: 'Caixa de Entrada' },
+  { id: 'todo',    title: 'A Fazer' },
+  { id: 'waiting', title: 'Aguardando / Follow-up' },
+  { id: 'done',    title: 'Concluído' }
+];
+
+const CRM_STAGES = [
+  { id: 'novo',        title: 'Novo Lead' },
+  { id: 'diagnostico', title: 'Diagnóstico / Reunião' },
+  { id: 'proposta',    title: 'Proposta Enviada' },
+  { id: 'fechado',     title: 'Fechado' }
+];
+
+function localISO(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function buildCurrentWeek() {
+  const now = new Date();
+  const dow = now.getDay(); // 0=Dom .. 6=Sab
+  const diffMon = (dow === 0 ? -6 : 1 - dow);
+  const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffMon);
+  const names = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+  return names.map((nm, i) => {
+    const dt = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+    const iso = localISO(dt);
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    return { label: `${nm} ${dd}/${mm}`, iso };
+  });
+}
+
+const TODAY = localISO(new Date());
+const DAYS = buildCurrentWeek();
+const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+const STATE = {
+  activeTab: 'agenda',
+  calMode: 'semana',
+  frontFilter: 'ALL',
+  crmFilter: 'ALL',
+  crmTempFilter: 'ALL',
+  activeCardId: null,
+  activeLeadId: null,
+  dragInfo: null,
+  pendingSlot: null,
+  apiUrl: DEFAULT_API_URL,
+  apiPin: DEFAULT_API_PIN,
+  audit: [],
+  events: [],
+  cards: [],
+  leads: []
+};
+
+function loadSavedConfig() {
+  try {
+    STATE.apiUrl = localStorage.getItem('mc_api_url') || DEFAULT_API_URL;
+    STATE.apiPin = localStorage.getItem('mc_api_pin') || DEFAULT_API_PIN;
+  } catch (_) {}
+  document.getElementById('ntDue').value = TODAY;
+  document.getElementById('nlNextDate').value = TODAY;
+}
+
+async function syncFromGoogle() {
+  document.getElementById('connStatusLabel').textContent = 'Sincronizando...';
+  try {
+    const res = await fetch(`${STATE.apiUrl}?pin=${encodeURIComponent(STATE.apiPin)}`);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'PIN incorreto ou erro no script');
+    STATE.cards = Array.isArray(json.cards) ? json.cards : [];
+    STATE.leads = Array.isArray(json.leads) ? json.leads : [];
+    STATE.events = Array.isArray(json.events) ? json.events : [];
+    STATE.audit = Array.isArray(json.audit) ? json.audit : [];
+    document.getElementById('connStatusLabel').textContent = 'Conectado · ' + (json.updatedAt || '');
+    document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+    renderAll();
+    showToast('Dados atualizados do Google!');
+  } catch (err) {
+    document.getElementById('connStatusLabel').textContent = 'Erro de conexão';
+    document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-red-500';
+    showToast('Erro: ' + err.message);
+  }
+}
+
+async function pushToGoogle(payload) {
+  try {
+    const res = await fetch(STATE.apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ ...payload, pin: STATE.apiPin })
+    });
+    const json = await res.json();
+    if (!json.ok) showToast('Erro ao salvar: ' + (json.error || ''));
+    else syncFromGoogle();
+  } catch (err) {
+    showToast('Falha ao salvar no Google: ' + err.message);
+  }
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
+}
+
+function celebrate() {
+  if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
+}
+
+function addDaysUtil(baseIso, days) {
+  const startIso = (baseIso && baseIso > TODAY) ? baseIso : TODAY;
+  const [y, m, d] = startIso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  if (dt.getDay() === 6) dt.setDate(dt.getDate() + 2);
+  if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
+  return localISO(dt);
+}
+
+function isLate(iso, done) { return !done && Boolean(iso) && iso < TODAY; }
+function fmtDateBR(iso) { if (!iso) return '—'; const p = String(iso).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}` : iso; }
+function fmtMoney(v) { return 'R$ ' + Number(v || 0).toLocaleString('pt-BR'); }
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function renderIcons() { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); }
+
+function renderTabs() {
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    const active = btn.dataset.tab === STATE.activeTab;
+    btn.className = active
+      ? 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition'
+      : 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 cursor-pointer inline-flex items-center gap-1.5 transition';
+  });
+  ['agenda', 'tarefas', 'followups', 'crm'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('hidden', STATE.activeTab !== t);
+  });
+  document.getElementById('btnPrimaryLabel').textContent = STATE.activeTab === 'crm' ? 'Novo Lead' : 'Novo';
+}
+
+function renderCalendar() {
+  const box = document.getElementById('calendarContainer');
+  document.getElementById('calBtnDia').className = STATE.calMode === 'dia'
+    ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs cursor-pointer'
+    : 'px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer';
+  document.getElementById('calBtnSemana').className = STATE.calMode === 'semana'
+    ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs cursor-pointer'
+    : 'px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer';
+
+  const todayObj = DAYS.find(d => d.iso === TODAY) || DAYS[0];
+  const visibleDays = STATE.calMode === 'dia' ? [todayObj] : DAYS;
+  const colsClass = STATE.calMode === 'dia' ? 'grid-cols-[58px_1fr]' : 'grid-cols-[58px_repeat(5,minmax(125px,1fr))]';
+
+  let html = `<div class="border border-slate-200 rounded-xl overflow-hidden text-xs">`;
+  html += `<div class="grid ${colsClass} bg-slate-50 border-b border-slate-200 font-semibold text-slate-600">
+    <div class="p-2 text-center border-r border-slate-200">Hora</div>
+    ${visibleDays.map(d => `<div class="p-2 text-center border-r last:border-r-0 border-slate-200 ${d.iso === TODAY ? 'text-slate-900 bg-emerald-50/70 font-bold' : ''}">${d.label}</div>`).join('')}
+  </div>`;
+
+  HOURS.forEach(hr => {
+    const label = String(hr).padStart(2, '0') + ':00';
+    html += `<div class="grid ${colsClass} border-b last:border-b-0 border-slate-100">
+      <div class="p-2 text-center font-medium text-slate-400 bg-slate-50/50 border-r border-slate-200">${label}</div>`;
+    visibleDays.forEach(day => {
+      const evs = STATE.events.filter(e => e.date === day.iso && Number(e.hour) === hr);
+      if (evs.length) {
+        html += `<div class="p-1 border-r last:border-r-0 border-slate-100 space-y-1">
+          ${evs.map(ev => `
+            <div class="cal-${ev.front || 'Particular'} rounded-lg px-2 py-1.5 transition hover:brightness-95">
+              <div class="font-semibold text-slate-900 leading-tight">${esc(ev.title)}</div>
+              ${evs.length > 1 ? '<div class="text-[10px] font-bold text-red-600 mt-0.5">Conflito de horário</div>' : ''}
+            </div>
+          `).join('')}
+        </div>`;
+      } else {
+        html += `<div class="p-1 border-r last:border-r-0 border-slate-100">
+          <button data-slot-date="${day.iso}" data-slot-label="${day.label}" data-slot-hour="${hr}" class="w-full h-full min-h-[34px] rounded-lg hover:bg-emerald-50 text-[11px] font-medium text-transparent hover:text-emerald-700 transition cursor-pointer flex items-center justify-center">+ Agendar</button>
+        </div>`;
+      }
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+function renderTop3() {
+  const active = STATE.cards.filter(c => c.stage !== 'done');
+  const lateCount = active.filter(c => isLate(c.due, false)).length;
+  const latePill = document.getElementById('lateCountPill');
+  if (lateCount > 0) { latePill.textContent = `${lateCount} atrasada(s)`; latePill.classList.remove('hidden'); }
+  else latePill.classList.add('hidden');
+
+  const top3 = active.sort((a, b) => String(a.priority).localeCompare(String(b.priority)) || String(a.due).localeCompare(String(b.due))).slice(0, 3);
+  document.getElementById('prioHojeList').innerHTML = top3.length
+    ? top3.map((c, i) => {
+      const late = isLate(c.due, false);
+      return `
+        <div data-open="${c.id}" class="bg-white card-${c.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200'} rounded-xl p-2.5 cursor-pointer">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span class="badge-${c.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[c.front] || FRONTS.Particular).label}</span>
+            <span class="text-[11px] font-semibold ${late ? 'text-red-600' : 'text-slate-500'}">${late ? 'Atrasada · ' : ''}${fmtDateBR(c.due)}</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-900 leading-snug">${i + 1}. ${esc(c.title)}</div>
+        </div>
+      `;
+    }).join('')
+    : '<p class="text-xs text-slate-400">Nenhuma pendência!</p>';
+}
+
+function renderFilters() {
+  const keys = ['ALL', 'SR', 'Otimize', 'Sette', 'Reforma', 'Particular'];
+  document.getElementById('frontFilters').innerHTML = keys.map(k => {
+    const active = STATE.frontFilter === k;
+    const label = k === 'ALL' ? 'Todas' : FRONTS[k].label;
+    const dot = k === 'ALL' ? '' : `<span class="w-2 h-2 rounded-full dot-${k}"></span>`;
+    return `<button data-filter="${k}" class="btn-press inline-flex items-center gap-1.5 px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${dot}${label}</button>`;
+  }).join('');
+
+  const crmKeys = ['ALL', 'Otimize', 'SR', 'Sette', 'Reforma'];
+  document.getElementById('crmFilters').innerHTML = crmKeys.map(k => {
+    const active = STATE.crmFilter === k;
+    const label = k === 'ALL' ? 'Todas frentes' : FRONTS[k].label;
+    const dot = k === 'ALL' ? '' : `<span class="w-2 h-2 rounded-full dot-${k}"></span>`;
+    return `<button data-crm-filter="${k}" class="btn-press inline-flex items-center gap-1.5 px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${dot}${label}</button>`;
+  }).join('');
+
+  const temps = ['ALL', 'Quente', 'Morno', 'Frio'];
+  document.getElementById('crmTempFilters').innerHTML = temps.map(t => {
+    const active = STATE.crmTempFilter === t;
+    return `<button data-temp-filter="${t}" class="btn-press px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${t === 'ALL' ? 'Todas temp.' : t}</button>`;
+  }).join('');
+}
+
+function renderBoard() {
+  const total = STATE.cards.length;
+  const doneCount = STATE.cards.filter(c => c.stage === 'done').length;
+  const pct = total ? Math.round((doneCount / total) * 100) : 0;
+  document.getElementById('taskProgressBar').style.width = pct + '%';
+  document.getElementById('taskProgressText').textContent = `${pct}% (${doneCount}/${total})`;
+
+  document.getElementById('trelloBoard').innerHTML = STAGES.map(st => {
+    const list = STATE.cards
+      .filter(c => c.stage === st.id && (STATE.frontFilter === 'ALL' || c.front === STATE.frontFilter))
+      .sort((a, b) => String(a.priority).localeCompare(String(b.priority)) || String(a.due).localeCompare(String(b.due)));
+
+    return `
+      <div data-drop-kind="task" data-drop-stage="${st.id}" class="drop-col bg-slate-200/55 border border-slate-200/90 rounded-2xl p-3 min-h-[360px]">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-xs font-bold text-slate-700">${st.title}</h3>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-2xs">${list.length}</span>
+        </div>
+        <div class="space-y-2.5">
+          ${list.length ? list.map(c => {
+            const late = isLate(c.due, c.stage === 'done');
+            const cms = Array.isArray(c.comments) ? c.comments : [];
+            return `
+              <article draggable="true" data-drag-kind="task" data-drag-id="${c.id}" class="bg-white card-${c.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200/90'} rounded-xl p-3 shadow-2xs cursor-grab active:cursor-grabbing">
+                <div data-open="${c.id}" class="cursor-pointer">
+                  <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="badge-${c.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[c.front] || FRONTS.Particular).label}</span>
+                    <span class="text-[11px] font-semibold inline-flex items-center gap-1 ${late ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md' : 'text-slate-500'}">
+                      ${late ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-late"></span>' : ''}${fmtDateBR(c.due)}
+                    </span>
+                  </div>
+                  <div class="text-sm font-semibold text-slate-900 leading-snug mb-2">${esc(c.title)}</div>
+                  <div class="flex items-center gap-2.5 text-[11px] text-slate-400">
+                    <span>${esc(c.type)}</span>
+                    ${cms.length ? `<span>💬 ${cms.length}</span>` : ''}
+                  </div>
+                </div>
+                ${c.stage !== 'done' ? `
+                  <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <button data-cobrei="${c.id}" class="btn-press px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-semibold cursor-pointer">Cobrei (+2d) · ${c.cobrancas || 0}x</button>
+                    <button data-open="${c.id}" class="text-[11px] font-semibold text-slate-400 hover:text-slate-800 cursor-pointer">Abrir</button>
+                  </div>
+                ` : ''}
+              </article>
+            `;
+          }).join('') : '<div class="text-xs text-slate-400 text-center py-10 border border-dashed border-slate-300 rounded-xl">Arraste um cartão para cá</div>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCRM() {
+  const activeLeads = STATE.leads.filter(l => l.stage !== 'fechado' && l.stage !== 'perdido');
+  document.getElementById('crmKpiAtivos').textContent = activeLeads.length;
+  document.getElementById('crmKpiQuentes').textContent = activeLeads.filter(l => l.temp === 'Quente').length;
+  document.getElementById('crmKpiMensal').textContent = fmtMoney(activeLeads.filter(l => l.unit === '/mês').reduce((s, l) => s + Number(l.value || 0), 0)) + '/mês';
+  document.getElementById('crmKpiProjetos').textContent = fmtMoney(activeLeads.filter(l => l.unit !== '/mês').reduce((s, l) => s + Number(l.value || 0), 0));
+
+  const tempOrder = { Quente: 1, Morno: 2, Frio: 3 };
+  document.getElementById('crmBoard').innerHTML = CRM_STAGES.map(st => {
+    const list = STATE.leads
+      .filter(l => l.stage === st.id && (STATE.crmFilter === 'ALL' || l.front === STATE.crmFilter) && (STATE.crmTempFilter === 'ALL' || l.temp === STATE.crmTempFilter))
+      .sort((a, b) => (tempOrder[a.temp] || 9) - (tempOrder[b.temp] || 9) || String(a.nextDate).localeCompare(String(b.nextDate)));
+
+    return `
+      <div data-drop-kind="crm" data-drop-stage="${st.id}" class="drop-col bg-slate-200/55 border border-slate-200/90 rounded-2xl p-3 min-h-[360px]">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-xs font-bold text-slate-700">${st.title}</h3>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-2xs">${list.length}</span>
+        </div>
+        <div class="space-y-2.5">
+          ${list.length ? list.map(l => {
+            const late = isLate(l.nextDate, l.stage === 'fechado');
+            const cms = Array.isArray(l.comments) ? l.comments : [];
+            return `
+              <article draggable="true" data-drag-kind="crm" data-drag-id="${l.id}" class="bg-white card-${l.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200/90'} rounded-xl p-3 shadow-2xs cursor-grab active:cursor-grabbing">
+                <div data-open-lead="${l.id}" class="cursor-pointer">
+                  <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                    <div class="flex items-center gap-1">
+                      <span class="badge-${l.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[l.front] || FRONTS.Otimize).label}</span>
+                      <span class="temp-${l.temp} text-[10px] font-bold px-2 py-0.5 rounded-full">${esc(l.temp)}</span>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-700">${fmtMoney(l.value)}<span class="font-normal text-[10px] text-slate-500">${esc(l.unit || '')}</span></span>
+                  </div>
+                  <div class="text-sm font-semibold text-slate-900 leading-snug">${esc(l.name)}</div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">Origem: ${esc(l.origin)} · ${esc(l.contact)}</div>
+                  ${l.nextStep ? `<div class="text-[11px] text-slate-700 bg-slate-50 rounded-lg px-2 py-1 mt-1.5 border border-slate-100">Próx: ${esc(l.nextStep)}</div>` : ''}
+                  <div class="flex items-center gap-2.5 text-[11px] mt-2 ${late ? 'text-red-600 font-semibold' : 'text-slate-400'}">
+                    <span>${late ? 'Atrasado · ' : 'Retorno: '}${fmtDateBR(l.nextDate)}</span>
+                    ${cms.length ? `<span class="text-slate-400 font-normal">💬 ${cms.length}</span>` : ''}
+                  </div>
+                </div>
+                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  ${l.stage === 'fechado'
+                    ? `<button data-onboard-lead="${l.id}" class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold cursor-pointer">+ Criar Onboarding</button>`
+                    : `<button data-cobrei-lead="${l.id}" class="btn-press px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-semibold cursor-pointer">Cobrei (+2d) · ${l.cobrancas || 0}x</button>`
+                  }
+                  <button data-open-lead="${l.id}" class="text-[11px] font-semibold text-slate-400 hover:text-slate-800 cursor-pointer">Abrir</button>
+                </div>
+              </article>
+            `;
+          }).join('') : '<div class="text-xs text-slate-400 text-center py-10 border border-dashed border-slate-300 rounded-xl">Arraste um lead para cá</div>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderFollowups() {
+  const taskFollows = STATE.cards
+    .filter(c => c.stage !== 'done' && (c.type === 'Follow-up' || c.stage === 'waiting'))
+    .map(c => ({ kind: 'task', id: c.id, title: c.title, front: c.front, date: c.due, cobrancas: c.cobrancas || 0, tag: 'Operacional' }));
+  const crmFollows = STATE.leads
+    .filter(l => l.stage === 'proposta')
+    .map(l => ({ kind: 'crm', id: l.id, title: `Proposta: ${l.name}`, front: l.front, date: l.nextDate, cobrancas: l.cobrancas || 0, tag: `CRM · ${l.temp}` }));
+  const list = [...taskFollows, ...crmFollows].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  document.getElementById('navFollowBadge').textContent = list.length;
+  document.getElementById('followupCountBadge').textContent = `${list.length} ativo(s)`;
+  document.getElementById('followupsList').innerHTML = list.length
+    ? list.map(item => {
+      const late = isLate(item.date, false);
+      return `
+        <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div ${item.kind === 'crm' ? `data-open-lead="${item.id}"` : `data-open="${item.id}"`} class="cursor-pointer min-w-0">
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="badge-${item.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[item.front] || FRONTS.Particular).label}</span>
+              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${esc(item.tag)}</span>
+              <span class="text-xs ${late ? 'text-red-600 font-bold' : 'text-slate-500'}">${late ? 'Vencido em ' : 'Próxima: '}${fmtDateBR(item.date)}</span>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">${esc(item.title)}</div>
+          </div>
+          <button ${item.kind === 'crm' ? `data-cobrei-lead="${item.id}"` : `data-cobrei="${item.id}"`} class="btn-press px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold cursor-pointer shrink-0">Cobrei (+2d) · ${item.cobrancas}x</button>
+        </div>
+      `;
+    }).join('')
+    : '<p class="text-sm text-slate-400 py-4">Nenhum follow-up pendente.</p>';
+}
+
+function bindDragAndDrop() {
+  document.querySelectorAll('[data-drag-id]').forEach(el => {
+    el.addEventListener('dragstart', (e) => {
+      STATE.dragInfo = { kind: el.dataset.dragKind, id: el.dataset.dragId };
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', JSON.stringify(STATE.dragInfo));
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      STATE.dragInfo = null;
+      document.querySelectorAll('.drop-col').forEach(col => col.classList.remove('drag-over'));
+    });
+  });
+
+  document.querySelectorAll('.drop-col').forEach(col => {
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (STATE.dragInfo && STATE.dragInfo.kind === col.dataset.dropKind) col.classList.add('drag-over');
+    });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      let info = STATE.dragInfo;
+      if (!info) { try { info = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (_) {} }
+      if (!info || info.kind !== col.dataset.dropKind) return;
+      const newStage = col.dataset.dropStage;
+      if (info.kind === 'task') {
+        const card = STATE.cards.find(c => c.id === info.id);
+        if (card && card.stage !== newStage) {
+          card.stage = newStage;
+          card.comments = Array.isArray(card.comments) ? card.comments : [];
+          card.comments.push({ at: TODAY, text: `Movido para ${newStage}` });
+          renderAll();
+          pushToGoogle({ action: 'update_task', item: card });
+        }
+      } else if (info.kind === 'crm') {
+        const lead = STATE.leads.find(l => l.id === info.id);
+        if (lead && lead.stage !== newStage) {
+          lead.stage = newStage;
+          lead.comments = Array.isArray(lead.comments) ? lead.comments : [];
+          lead.comments.push({ at: TODAY, text: `Etapa alterada para ${newStage}` });
+          renderAll();
+          if (newStage === 'fechado') celebrate();
+          pushToGoogle({ action: 'update_lead', item: lead });
+        }
+      }
+    });
+  });
+}
+
+function renderAll() {
+  renderTabs();
+  renderCalendar();
+  renderTop3();
+  renderFilters();
+  renderBoard();
+  renderCRM();
+  renderFollowups();
+  bindDragAndDrop();
+  renderIcons();
+}
+
+function createOnboardingFromLead(leadId) {
+  const lead = STATE.leads.find(l => l.id === leadId);
+  if (!lead) return;
+  const item = {
+    title: `Onboarding novo cliente: ${lead.name}`,
+    front: lead.front, type: 'Entrega/prazo', priority: '2',
+    due: addDaysUtil(TODAY, 1), stage: 'todo', cobrancas: 0,
+    comments: [{ at: TODAY, text: `Gerado do CRM (${lead.id})` }]
+  };
+  STATE.activeTab = 'tarefas';
+  renderTabs();
+  pushToGoogle({ action: 'add_task', item, origem: 'CRM' });
+  showToast(`Criando onboarding de ${lead.name}...`);
+}
+
+function openCardModal(id) {
+  const card = STATE.cards.find(c => c.id === id);
+  if (!card) return;
+  STATE.activeCardId = id;
+  const badge = document.getElementById('modalFrontBadge');
+  badge.className = `badge-${card.front} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5`;
+  badge.textContent = `${(FRONTS[card.front] || FRONTS.Particular).label} · ${card.id}`;
+  document.getElementById('modalTitleInput').value = card.title;
+  document.getElementById('modalStage').value = card.stage;
+  document.getElementById('modalDue').value = card.due;
+  document.getElementById('modalFront').value = card.front;
+  document.getElementById('modalPriority').value = String(card.priority || '2');
+  document.getElementById('modalCobreiBtn').textContent = `Cobrei (+2 dias úteis) · ${card.cobrancas || 0}x`;
+  const cms = Array.isArray(card.comments) ? card.comments : [];
+  document.getElementById('modalComments').innerHTML = cms.length
+    ? cms.map(cm => `<div class="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs"><div class="text-[11px] font-semibold text-slate-400 mb-0.5">${esc(cm.at)}</div><div class="text-slate-800">${esc(cm.text)}</div></div>`).join('')
+    : '<p class="text-xs text-slate-400">Sem comentários ainda.</p>';
+  const m = document.getElementById('cardModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+
+function openLeadModal(id) {
+  const lead = STATE.leads.find(l => l.id === id);
+  if (!lead) return;
+  STATE.activeLeadId = id;
+  const badge = document.getElementById('leadFrontBadge');
+  badge.className = `badge-${lead.front} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full`;
+  badge.textContent = `${(FRONTS[lead.front] || FRONTS.Otimize).label} · ${lead.id}`;
+  const tBadge = document.getElementById('leadTempBadge');
+  tBadge.className = `temp-${lead.temp} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full`;
+  tBadge.textContent = lead.temp;
+  document.getElementById('leadModalNameInput').value = lead.name;
+  document.getElementById('leadModalMeta').textContent = `Contato: ${lead.contact} · Origem: ${lead.origin}`;
+  document.getElementById('leadStage').value = lead.stage;
+  document.getElementById('leadTemp').value = lead.temp;
+  document.getElementById('leadOrigin').value = lead.origin;
+  document.getElementById('leadFront').value = lead.front;
+  document.getElementById('leadValue').value = lead.value;
+  document.getElementById('leadUnit').value = lead.unit || '/mês';
+  document.getElementById('leadNextDate').value = lead.nextDate;
+  document.getElementById('leadNextStep').value = lead.nextStep || '';
+  document.getElementById('leadCobreiBtn').textContent = `Cobrei proposta (+2d) · ${lead.cobrancas || 0}x`;
+  document.getElementById('leadOnboardingBtn').classList.toggle('hidden', lead.stage !== 'fechado');
+  const cms = Array.isArray(lead.comments) ? lead.comments : [];
+  document.getElementById('leadComments').innerHTML = cms.length
+    ? cms.map(cm => `<div class="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs"><div class="text-[11px] font-semibold text-slate-400 mb-0.5">${esc(cm.at)}</div><div class="text-slate-800">${esc(cm.text)}</div></div>`).join('')
+    : '<p class="text-xs text-slate-400">Sem histórico ainda.</p>';
+  const m = document.getElementById('leadModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+
+document.addEventListener('click', (e) => {
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) { STATE.activeTab = tabBtn.dataset.tab; renderTabs(); return; }
+
+  const onboardBtn = e.target.closest('[data-onboard-lead]');
+  if (onboardBtn) { createOnboardingFromLead(onboardBtn.dataset.onboardLead); return; }
+
+  const slotBtn = e.target.closest('[data-slot-date]');
+  if (slotBtn) {
+    STATE.pendingSlot = { date: slotBtn.dataset.slotDate, label: slotBtn.dataset.slotLabel, hour: Number(slotBtn.dataset.slotHour) };
+    document.getElementById('slotLabel').textContent = `${STATE.pendingSlot.label} · ${String(STATE.pendingSlot.hour).padStart(2, '0')}:00 – ${String(STATE.pendingSlot.hour + 1).padStart(2, '0')}:00`;
+    document.getElementById('slotTitle').value = '';
+    const m = document.getElementById('slotModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+    return;
+  }
+
+  const cobreLead = e.target.closest('[data-cobrei-lead]');
+  if (cobreLead) { pushToGoogle({ action: 'cobrei_lead', id: cobreLead.dataset.cobreiLead }); return; }
+
+  const cobreBtn = e.target.closest('[data-cobrei]');
+  if (cobreBtn) { pushToGoogle({ action: 'cobrei_task', id: cobreBtn.dataset.cobrei }); return; }
+
+  const tempBtn = e.target.closest('[data-temp-filter]');
+  if (tempBtn) { STATE.crmTempFilter = tempBtn.dataset.tempFilter; renderFilters(); renderCRM(); bindDragAndDrop(); return; }
+
+  const crmFilterBtn = e.target.closest('[data-crm-filter]');
+  if (crmFilterBtn) { STATE.crmFilter = crmFilterBtn.dataset.crmFilter; renderFilters(); renderCRM(); bindDragAndDrop(); return; }
+
+  const filterBtn = e.target.closest('[data-filter]');
+  if (filterBtn) { STATE.frontFilter = filterBtn.dataset.filter; renderFilters(); renderBoard(); bindDragAndDrop(); return; }
+
+  const openLead = e.target.closest('[data-open-lead]');
+  if (openLead) { openLeadModal(openLead.dataset.openLead); return; }
+
+  const openEl = e.target.closest('[data-open]');
+  if (openEl) { openCardModal(openEl.dataset.open); return; }
+});
+
+document.getElementById('btnSyncNow').addEventListener('click', syncFromGoogle);
+document.getElementById('calBtnDia').addEventListener('click', () => { STATE.calMode = 'dia'; renderCalendar(); });
+document.getElementById('calBtnSemana').addEventListener('click', () => { STATE.calMode = 'semana'; renderCalendar(); });
+
+document.getElementById('quickForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const inp = document.getElementById('quickInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  showToast('Salvando no Google...');
+  pushToGoogle({ action: 'quick_add', text: txt, origem: 'Web' });
+});
+
+const closeCard = () => { STATE.activeCardId = null; document.getElementById('cardModal').classList.add('hidden'); document.getElementById('cardModal').classList.remove('flex'); };
+document.getElementById('closeCardModal').addEventListener('click', closeCard);
+document.getElementById('modalCobreiBtn').addEventListener('click', () => { if (STATE.activeCardId) { pushToGoogle({ action: 'cobrei_task', id: STATE.activeCardId }); closeCard(); } });
+document.getElementById('modalSaveFields').addEventListener('click', () => {
+  const card = STATE.cards.find(c => c.id === STATE.activeCardId);
+  if (!card) return;
+  card.title = document.getElementById('modalTitleInput').value.trim() || card.title;
+  card.stage = document.getElementById('modalStage').value;
+  card.due = document.getElementById('modalDue').value;
+  card.front = document.getElementById('modalFront').value;
+  card.priority = document.getElementById('modalPriority').value;
+  closeCard();
+  pushToGoogle({ action: 'update_task', item: card });
+});
+document.getElementById('modalDeleteCard').addEventListener('click', () => {
+  if (!STATE.activeCardId) return;
+  const id = STATE.activeCardId; closeCard();
+  pushToGoogle({ action: 'delete_task', id });
+});
+document.getElementById('addCommentBtn').addEventListener('click', () => {
+  const card = STATE.cards.find(c => c.id === STATE.activeCardId);
+  const inp = document.getElementById('newCommentInput');
+  if (!card || !inp.value.trim()) return;
+  card.comments = Array.isArray(card.comments) ? card.comments : [];
+  card.comments.push({ at: TODAY, text: inp.value.trim() });
+  inp.value = '';
+  openCardModal(card.id);
+  pushToGoogle({ action: 'update_task', item: card });
+});
+
+const closeLead = () => { STATE.activeLeadId = null; document.getElementById('leadModal').classList.add('hidden'); document.getElementById('leadModal').classList.remove('flex'); };
+document.getElementById('closeLeadModal').addEventListener('click', closeLead);
+document.getElementById('leadCobreiBtn').addEventListener('click', () => { if (STATE.activeLeadId) { pushToGoogle({ action: 'cobrei_lead', id: STATE.activeLeadId }); closeLead(); } });
+document.getElementById('leadOnboardingBtn').addEventListener('click', () => { if (STATE.activeLeadId) { const id = STATE.activeLeadId; closeLead(); createOnboardingFromLead(id); } });
+document.getElementById('leadSaveBtn').addEventListener('click', () => {
+  const lead = STATE.leads.find(l => l.id === STATE.activeLeadId);
+  if (!lead) return;
+  const wasClosed = lead.stage === 'fechado';
+  lead.name = document.getElementById('leadModalNameInput').value.trim() || lead.name;
+  lead.stage = document.getElementById('leadStage').value;
+  lead.temp = document.getElementById('leadTemp').value;
+  lead.origin = document.getElementById('leadOrigin').value;
+  lead.front = document.getElementById('leadFront').value;
+  lead.value = Number(document.getElementById('leadValue').value || 0);
+  lead.unit = document.getElementById('leadUnit').value;
+  lead.nextDate = document.getElementById('leadNextDate').value;
+  lead.nextStep = document.getElementById('leadNextStep').value.trim();
+  if (!wasClosed && lead.stage === 'fechado') celebrate();
+  closeLead();
+  pushToGoogle({ action: 'update_lead', item: lead });
+});
+document.getElementById('leadDeleteBtn').addEventListener('click', () => {
+  if (!STATE.activeLeadId) return;
+  const id = STATE.activeLeadId; closeLead();
+  pushToGoogle({ action: 'delete_lead', id });
+});
+document.getElementById('addLeadCommentBtn').addEventListener('click', () => {
+  const lead = STATE.leads.find(l => l.id === STATE.activeLeadId);
+  const inp = document.getElementById('newLeadCommentInput');
+  if (!lead || !inp.value.trim()) return;
+  lead.comments = Array.isArray(lead.comments) ? lead.comments : [];
+  lead.comments.push({ at: TODAY, text: inp.value.trim() });
+  inp.value = '';
+  openLeadModal(lead.id);
+  pushToGoogle({ action: 'update_lead', item: lead });
+});
+
+document.getElementById('btnPrimaryAdd').addEventListener('click', () => {
+  const m = document.getElementById(STATE.activeTab === 'crm' ? 'newLeadModal' : 'newTaskModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+});
+
+const closeNT = () => { document.getElementById('newTaskModal').classList.add('hidden'); document.getElementById('newTaskModal').classList.remove('flex'); };
+document.getElementById('closeNewTask').addEventListener('click', closeNT);
+document.getElementById('cancelNewTask').addEventListener('click', closeNT);
+document.getElementById('confirmNewTask').addEventListener('click', () => {
+  const title = document.getElementById('ntTitle').value.trim();
+  if (!title) { showToast('Informe o título.'); return; }
+  const item = {
+    title, front: document.getElementById('ntFront').value,
+    type: document.getElementById('ntType').value,
+    priority: document.getElementById('ntPriority').value,
+    due: document.getElementById('ntDue').value || TODAY,
+    stage: 'inbox', cobrancas: 0
+  };
+  document.getElementById('ntTitle').value = '';
+  closeNT(); STATE.activeTab = 'tarefas'; renderTabs();
+  pushToGoogle({ action: 'add_task', item });
+});
+
+const closeNL = () => { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); };
+document.getElementById('closeNewLead').addEventListener('click', closeNL);
+document.getElementById('cancelNewLead').addEventListener('click', closeNL);
+document.getElementById('confirmNewLead').addEventListener('click', () => {
+  const name = document.getElementById('nlName').value.trim();
+  if (!name) { showToast('Informe o nome do lead.'); return; }
+  const item = {
+    name, front: document.getElementById('nlFront').value,
+    temp: document.getElementById('nlTemp').value,
+    origin: document.getElementById('nlOrigin').value,
+    stage: document.getElementById('nlStage').value,
+    contact: document.getElementById('nlContact').value.trim() || 'Sem contato',
+    value: Number(document.getElementById('nlValue').value || 0),
+    unit: document.getElementById('nlUnit').value,
+    nextDate: document.getElementById('nlNextDate').value || TODAY,
+    nextStep: document.getElementById('nlNextStep').value.trim(),
+    cobrancas: 0
+  };
+  document.getElementById('nlName').value = '';
+  document.getElementById('nlContact').value = '';
+  document.getElementById('nlNextStep').value = '';
+  closeNL(); STATE.activeTab = 'crm'; renderTabs();
+  pushToGoogle({ action: 'add_lead', item });
+});
+
+const closeSlot = () => { document.getElementById('slotModal').classList.add('hidden'); document.getElementById('slotModal').classList.remove('flex'); };
+document.getElementById('closeSlotModal').addEventListener('click', closeSlot);
+document.getElementById('cancelSlotModal').addEventListener('click', closeSlot);
+document.getElementById('confirmSlotBtn').addEventListener('click', () => {
+  const title = document.getElementById('slotTitle').value.trim();
+  if (!title || !STATE.pendingSlot) { showToast('Informe o título.'); return; }
+  const ev = { date: STATE.pendingSlot.date, hour: STATE.pendingSlot.hour, title, front: document.getElementById('slotFront').value };
+  closeSlot();
+  pushToGoogle({ action: 'add_event', event: ev });
+});
+
+const closeConn = () => { document.getElementById('connectModal').classList.add('hidden'); document.getElementById('connectModal').classList.remove('flex'); };
+document.getElementById('btnOpenConnect').addEventListener('click', () => {
+  document.getElementById('cfgUrlInput').value = STATE.apiUrl;
+  document.getElementById('cfgPinInput').value = STATE.apiPin;
+  const m = document.getElementById('connectModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+});
+document.getElementById('closeConnectModal').addEventListener('click', closeConn);
+document.getElementById('saveConnectBtn').addEventListener('click', () => {
+  STATE.apiUrl = document.getElementById('cfgUrlInput').value.trim();
+  STATE.apiPin = document.getElementById('cfgPinInput').value.trim();
+  try { localStorage.setItem('mc_api_url', STATE.apiUrl); localStorage.setItem('mc_api_pin', STATE.apiPin); } catch (_) {}
+  closeConn(); syncFromGoogle();
+});
+
+const closeAudit = () => { document.getElementById('auditModal').classList.add('hidden'); document.getElementById('auditModal').classList.remove('flex'); };
+document.getElementById('btnOpenAudit').addEventListener('click', () => {
+  document.getElementById('auditList').innerHTML = STATE.audit.length
+    ? STATE.audit.map(a => `<div class="py-2 flex items-start gap-3"><span class="text-[11px] text-slate-400 shrink-0">${esc(a.at)}</span><div><strong class="text-slate-900">${esc(a.action)}</strong> · <span class="text-slate-600">${esc(a.detail)}</span></div></div>`).join('')
+    : '<p class="text-xs text-slate-400 py-3">Sem registros ainda.</p>';
+  const m = document.getElementById('auditModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+});
+document.getElementById('closeAuditModal').addEventListener('click', closeAudit);
+
+loadSavedConfig();
+renderAll();
+syncFromGoogle();
+</script>
+</body>
+</html>
