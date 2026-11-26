@@ -21,17 +21,16 @@ const CONFIG = {
   SHEET_AUDITORIA: 'Auditoria',
   FOLLOWUP_DAYS: 2,
 
-  // Agendas configuradas em cozermateus@gmail.com
+  // Agendas configuradas em cozermateus@gmail.com (todas as 5 frentes + Feriados)
   CALENDARS: [
-    { front: 'Particular', name: 'Pessoal Mateus',    id: 'cozermateus@gmail.com' },
-    { front: 'Otimize',    name: 'Otimize',           id: '396082c2658d0ab8b2222adb27c39903b0619fb2f46fbdb6bbf6e8a4888bf606@group.calendar.google.com' },
-    { front: 'SR',         name: 'SR Contabilidade',  id: '9407475f47d378d4f5ddb0162605a33bc6fd268839a74892cfa6cee951ac3728@group.calendar.google.com' },
-    { front: 'Otimize',    name: 'Reunião Cliente',   id: '59213d80d5690a0b74e29e018aeeacbb197128f00d378423d92d662f6fcf5489@group.calendar.google.com' },
-    { front: 'Otimize',    name: 'Otimize Workspace', id: 'contato@otimizenow.com.br' },
-    { front: 'Feriado',    name: 'Feriados Brasil',   id: 'pt.brazilian#holiday@group.v.calendar.google.com', readonly: true }
-    // Descomente e cole os IDs quando criar as 2 agendas novas (Passo 3):
-    // { front: 'Sette',   name: 'Consultoria Sette',   id: 'ID_SETTE@group.calendar.google.com' },
-    // { front: 'Reforma', name: 'Consultoria Reforma', id: 'ID_REFORMA@group.calendar.google.com' }
+    { front: 'Particular', name: 'Pessoal Mateus',              id: 'cozermateus@gmail.com' },
+    { front: 'Otimize',    name: 'Otimize',                     id: '396082c2658d0ab8b2222adb27c39903b0619fb2f46fbdb6bbf6e8a4888bf606@group.calendar.google.com' },
+    { front: 'SR',         name: 'SR Contabilidade',            id: '9407475f47d378d4f5ddb0162605a33bc6fd268839a74892cfa6cee951ac3728@group.calendar.google.com' },
+    { front: 'Sette',      name: 'Consultoria Sette',           id: '98ed2efcf8bb4728b1236a8bd2b28c82408622c34554000f069a278884ca6ef7@group.calendar.google.com' },
+    { front: 'Reforma',    name: 'Consultoria Reforma (Tiago)', id: '350f6333e12bd285ff4768fac1ef32b24e2b70228975134174f75ca5a05bc704@group.calendar.google.com' },
+    { front: 'Otimize',    name: 'Reunião Cliente',             id: '59213d80d5690a0b74e29e018aeeacbb197128f00d378423d92d662f6fcf5489@group.calendar.google.com' },
+    { front: 'Otimize',    name: 'Otimize Workspace',           id: 'contato@otimizenow.com.br' },
+    { front: 'Feriado',    name: 'Feriados Brasil',             id: 'pt.brazilian#holiday@group.v.calendar.google.com', readonly: true }
   ]
 };
 
@@ -59,6 +58,14 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
     const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+
+    // Rota dedicada para Webhook do Bot Pessoal no Telegram (sem usar PIN na URL)
+    if (body && (body.update_id != null || body.message || body.edited_message)) {
+      lock.waitLock(10000);
+      tratarWebhookTelegram_(body);
+      return json_({ ok: true });
+    }
+
     if (!validarPin_(body.pin)) return json_({ ok: false, error: 'PIN inválido ou APP_PIN não configurado nas Propriedades do script.' });
     const a = body.action || 'quick_add';
     if (a === 'sync') {
@@ -582,4 +589,184 @@ function capturaRapida_(texto, origem) {
     due,
     stage: (type === 'Follow-up' || assignee !== 'Comigo') ? 'waiting' : 'inbox'
   }, origem);
+}
+
+// ===================== BOT PRIVADO TELEGRAM + GEMINI (CUSTO R$ 0) =====================
+
+/**
+ * Execute esta função 1 única vez no editor do Apps Script depois de cadastrar
+ * TELEGRAM_BOT_TOKEN nas Propriedades do script. Ela registra o Webhook automaticamente.
+ */
+function configurarWebhookTelegram() {
+  const props = PropertiesService.getScriptProperties();
+  const token = String(props.getProperty('TELEGRAM_BOT_TOKEN') || '').trim();
+  const webAppUrl = ScriptApp.getService().getUrl();
+  if (!token) throw new Error('Cadastre TELEGRAM_BOT_TOKEN nas Propriedades do script primeiro.');
+  if (!webAppUrl) throw new Error('Implante o Apps Script como App da Web primeiro.');
+  const resp = UrlFetchApp.fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({ url: webAppUrl }),
+    muteHttpExceptions: true
+  });
+  Logger.log(resp.getContentText());
+  return resp.getContentText();
+}
+
+function enviarMensagemTelegram_(chatId, texto) {
+  const token = String(PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN') || '').trim();
+  if (!token || !chatId) return;
+  UrlFetchApp.fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({ chat_id: chatId, text: texto }),
+    muteHttpExceptions: true
+  });
+}
+
+function tratarWebhookTelegram_(update) {
+  const msg = update.message || update.edited_message;
+  if (!msg || !msg.chat) return;
+  const chatId = String(msg.chat.id);
+  const props = PropertiesService.getScriptProperties();
+  const allowedId = String(props.getProperty('TELEGRAM_ALLOWED_CHAT_ID') || '').trim();
+  const text = String(msg.text || msg.caption || '').trim();
+
+  // Comando de vínculo seguro: /autorizar SEU_PIN
+  if (/^\/autorizar\s+/i.test(text)) {
+    const pinInformado = text.replace(/^\/autorizar\s+/i, '').trim();
+    if (validarPin_(pinInformado)) {
+      props.setProperty('TELEGRAM_ALLOWED_CHAT_ID', chatId);
+      enviarMensagemTelegram_(chatId, '✅ Telegram vinculado com segurança!\n\nAgora pode mandar textos, áudios rápidos ou encaminhar mensagens de clientes que eu já lanço direto na sua Central.');
+    } else {
+      enviarMensagemTelegram_(chatId, '❌ PIN incorreto.');
+    }
+    return;
+  }
+
+  if (/^\/start\b/i.test(text)) {
+    if (allowedId === chatId) {
+      enviarMensagemTelegram_(chatId, '👋 Central Mateus conectada! Mande um áudio ou texto (ex: "Cobrar Karen contrato Alfa sexta" ou "Reunião Rafael SR amanhã 14h").');
+    } else {
+      enviarMensagemTelegram_(chatId, '🔒 Bot privado.\nPara vincular sua conta, envie:\n/autorizar SEU_PIN');
+    }
+    return;
+  }
+
+  // Bloqueia qualquer pessoa que não seja o Mateus
+  if (!allowedId || allowedId !== chatId) {
+    enviarMensagemTelegram_(chatId, '🔒 Acesso não autorizado. Vincule com: /autorizar SEU_PIN');
+    return;
+  }
+
+  const geminiKey = String(props.getProperty('GEMINI_API_KEY') || '').trim();
+
+  // Áudio / Nota de Voz
+  if (msg.voice || msg.audio) {
+    if (!geminiKey) {
+      enviarMensagemTelegram_(chatId, '🎙️ Para transcrever áudios, adicione sua chave gratuita GEMINI_API_KEY nas Propriedades do Apps Script. (Por texto já funciona normalmente!)');
+      return;
+    }
+    try {
+      const fileId = (msg.voice && msg.voice.file_id) || (msg.audio && msg.audio.file_id);
+      const mime = (msg.voice && msg.voice.mime_type) || (msg.audio && msg.audio.mime_type) || 'audio/ogg';
+      const parsed = classificarComGemini_(geminiKey, null, baixarArquivoTelegramBase64_(fileId), mime);
+      const resumo = salvarItemClassificado_(parsed, 'Telegram Áudio');
+      enviarMensagemTelegram_(chatId, resumo);
+    } catch (err) {
+      enviarMensagemTelegram_(chatId, '⚠️ Erro ao processar áudio: ' + err.message);
+    }
+    return;
+  }
+
+  // Texto ou mensagem encaminhada
+  if (text) {
+    try {
+      if (geminiKey) {
+        const parsed = classificarComGemini_(geminiKey, text, null, null);
+        const resumo = salvarItemClassificado_(parsed, 'Telegram');
+        enviarMensagemTelegram_(chatId, resumo);
+      } else {
+        const res = capturaRapida_(text, 'Telegram');
+        enviarMensagemTelegram_(chatId, `✅ Capturado na Central!\n📌 ${text}\n🆔 ${res && res.id ? res.id : 'Agenda'}`);
+      }
+    } catch (err) {
+      const res = capturaRapida_(text, 'Telegram');
+      enviarMensagemTelegram_(chatId, `✅ Capturado (modo rápido):\n📌 ${text}\n🆔 ${res && res.id ? res.id : 'OK'}`);
+    }
+  }
+}
+
+function baixarArquivoTelegramBase64_(fileId) {
+  const token = String(PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN') || '').trim();
+  const infoRes = UrlFetchApp.fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(fileId)}`);
+  const info = JSON.parse(infoRes.getContentText());
+  if (!info.ok || !info.result || !info.result.file_path) throw new Error('Não foi possível baixar o áudio do Telegram.');
+  const fileRes = UrlFetchApp.fetch(`https://api.telegram.org/file/bot${token}/${info.result.file_path}`);
+  return Utilities.base64Encode(fileRes.getBlob().getBytes());
+}
+
+function classificarComGemini_(apiKey, texto, audioBase64, audioMime) {
+  const hoje = fmtDate_(new Date());
+  const prompt = [
+    `Você é o assistente pessoal do Mateus Cozer (contador e empresário em Florianópolis). Hoje é ${hoje}.`,
+    'Analise o texto ou áudio e retorne APENAS um JSON válido (sem markdown) no formato:',
+    '{"kind":"task|lead|event","title":"título curto e claro","front":"SR|Otimize|Sette|Reforma|Particular","assignee":"Comigo|Karen|Nicolas|Tiago|Elizandra|Kalleo|Anilton|Graciele|Cliente","type":"Tarefa|Follow-up|Entrega/prazo|Marcar reunião","priority":"1|2|3|4","due":"YYYY-MM-DD","startHour":14,"startMinute":0,"durationMin":60,"temp":"Quente|Morno|Frio","value":0,"notes":"resumo se houver"}',
+    'Regras:',
+    '- Frentes: SR (contabilidade, Karen, Elizandra, Kalleo, Anilton, Graciele, Rafael), Otimize (Nicolas), Sette (tributária internacional, cripto, saída fiscal), Reforma (Tiago), Particular (pessoal).',
+    '- Prioridade: 1=Prazo legal/multa, 2=Cliente/receita, 3=Crescimento, 4=Resto.',
+    '- Use kind="event" somente se houver pedido claro de agendar compromisso com horário específico.',
+    '- Use kind="lead" se mencionar lead, prospect, orçamento ou proposta comercial.'
+  ].join('\n');
+
+  const parts = [{ text: prompt }];
+  if (texto) parts.push({ text: 'Mensagem do Mateus: ' + texto });
+  if (audioBase64) parts.push({ inline_data: { mime_type: audioMime || 'audio/ogg', data: audioBase64 } });
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      contents: [{ parts: parts }],
+      generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
+    }),
+    muteHttpExceptions: true
+  });
+  const data = JSON.parse(resp.getContentText());
+  const raw = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+  if (!raw) throw new Error('Resposta vazia da Gemini API.');
+  return JSON.parse(raw.replace(/^```json\s*/i, '').replace(/```$/i, '').trim());
+}
+
+function salvarItemClassificado_(p, origem) {
+  const front = ['SR', 'Otimize', 'Sette', 'Reforma', 'Particular'].indexOf(p.front) >= 0 ? p.front : 'Otimize';
+  const due = /^\d{4}-\d{2}-\d{2}$/.test(String(p.due || '')) ? p.due : fmtDate_(new Date());
+
+  if (p.kind === 'event' && p.startHour != null) {
+    const startMin = Number(p.startHour) * 60 + Number(p.startMinute || 0);
+    const dur = Number(p.durationMin || 60);
+    criarEventoAgenda_({ date: due, startMin, durationMin: dur, title: p.title || 'Reunião', front, description: p.notes || '' }, origem);
+    return `📅 Agendado no Google Agenda!\n📌 ${p.title}\n🏢 ${front} · ${due} às ${String(p.startHour).padStart(2, '0')}:${String(p.startMinute || 0).padStart(2, '0')}`;
+  }
+
+  if (p.kind === 'lead') {
+    const r = criarLead_({
+      name: p.title || 'Novo Lead', contact: 'Via Telegram', origin: 'WhatsApp',
+      front: front === 'Particular' ? 'Otimize' : front,
+      temp: ['Quente', 'Morno', 'Frio'].indexOf(p.temp) >= 0 ? p.temp : 'Morno',
+      stage: 'novo', value: Number(p.value || 0), unit: '/mês', nextDate: due, nextStep: p.notes || 'Qualificar lead'
+    }, origem);
+    return `💼 Lead salvo no CRM (${r.id})!\n📌 ${p.title}\n🏢 ${front} · ${p.temp || 'Morno'} · Retorno ${due}`;
+  }
+
+  const assignee = p.assignee || 'Comigo';
+  const r = criarDemanda_({
+    title: p.title || 'Nova demanda', front,
+    type: p.type || (assignee !== 'Comigo' ? 'Follow-up' : 'Tarefa'),
+    priority: ['1', '2', '3', '4'].indexOf(String(p.priority)) >= 0 ? String(p.priority) : '2',
+    due, assignee, notes: p.notes || '',
+    stage: (p.type === 'Follow-up' || assignee !== 'Comigo') ? 'waiting' : 'inbox'
+  }, origem);
+  return `✅ Demanda criada (${r.id})!\n📌 ${p.title}\n🏢 ${front} · 👤 ${assignee} · 📅 ${due}`;
 }
