@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Demandas">
+<meta name="apple-mobile-web-app-title" content="Central Mateus">
 <link rel="manifest" href="manifest.json">
 <title>Central Mateus — Agenda, Tarefas & CRM</title>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -13,106 +13,402 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  (function() {
+    try {
+      const saved = localStorage.getItem('mc_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+    } catch (_) {}
+  })();
+</script>
 <style>
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+  :root {
+    --bg-canvas: #F4F4F0;
+    --bg-ambient: radial-gradient(ellipse 80% 45% at 50% -12%, rgba(15, 23, 42, 0.055), transparent 70%);
+    --surface-1: #FFFFFF;
+    --surface-2: #EAEAE4;
+    --surface-3: #F8F8F5;
+    --surface-glass: rgba(255, 255, 255, 0.80);
+    --border-subtle: rgba(15, 23, 42, 0.075);
+    --border-strong: rgba(15, 23, 42, 0.16);
+    --text-1: #0F172A;
+    --text-2: #475569;
+    --text-3: #8692A6;
+    --accent-bg: #0F172A;
+    --accent-fg: #FFFFFF;
+    --pill-indicator: #FFFFFF;
+    --pill-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    --card-shadow-hover: 0 14px 28px -10px rgba(15, 23, 42, 0.13), 0 0 0 1px rgba(15, 23, 42, 0.12);
+    --grid-line: rgba(15, 23, 42, 0.055);
+    --today-col: rgba(16, 185, 129, 0.055);
+
+    --c-sr: #64748B;       --bg-sr: rgba(100, 116, 139, 0.12); --tx-sr: #334155;
+    --c-otimize: #16A34A;  --bg-otimize: rgba(22, 163, 74, 0.12);  --tx-otimize: #15803D;
+    --c-sette: #EA580C;    --bg-sette: rgba(234, 88, 12, 0.12);    --tx-sette: #C2410C;
+    --c-reforma: #2563EB;  --bg-reforma: rgba(37, 99, 235, 0.12);  --tx-reforma: #1D4ED8;
+    --c-part: #CA8A04;     --bg-part: rgba(202, 138, 4, 0.14);     --tx-part: #A16207;
+    --c-feriado: #9333EA;  --bg-feriado: rgba(147, 51, 234, 0.12); --tx-feriado: #7E22CE;
   }
-  .card-SR         { border-left: 4px solid #64748B; }
-  .card-Otimize    { border-left: 4px solid #16A34A; }
-  .card-Sette      { border-left: 4px solid #EA580C; }
-  .card-Reforma    { border-left: 4px solid #2563EB; }
-  .card-Particular { border-left: 4px solid #CA8A04; }
 
-  .cal-SR         { background: #F1F5F9; border-left: 4px solid #64748B; }
-  .cal-Otimize    { background: #ECFDF5; border-left: 4px solid #16A34A; }
-  .cal-Sette      { background: #FFF7ED; border-left: 4px solid #EA580C; }
-  .cal-Reforma    { background: #EFF6FF; border-left: 4px solid #2563EB; }
-  .cal-Particular { background: #FEFCE8; border-left: 4px solid #CA8A04; }
+  [data-theme="dark"] {
+    --bg-canvas: #0A0C10;
+    --bg-ambient: radial-gradient(ellipse 75% 42% at 50% -10%, rgba(56, 189, 248, 0.08), transparent 70%);
+    --surface-1: #13161D;
+    --surface-2: #0E1016;
+    --surface-3: #191D26;
+    --surface-glass: rgba(15, 18, 25, 0.82);
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --text-1: #F1F5F9;
+    --text-2: #94A3B8;
+    --text-3: #64748B;
+    --accent-bg: #F8FAFC;
+    --accent-fg: #0A0C10;
+    --pill-indicator: #232834;
+    --pill-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --card-shadow-hover: 0 18px 34px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.14);
+    --grid-line: rgba(255, 255, 255, 0.055);
+    --today-col: rgba(34, 197, 94, 0.06);
 
-  .badge-SR         { background: #F1F5F9; color: #334155; }
-  .badge-Otimize    { background: #DCFCE7; color: #166534; }
-  .badge-Sette      { background: #FFEDD5; color: #9A3412; }
-  .badge-Reforma    { background: #DBEAFE; color: #1E40AF; }
-  .badge-Particular { background: #FEF9C3; color: #854D0E; }
+    --c-sr: #94A3B8;       --bg-sr: rgba(148, 163, 184, 0.15); --tx-sr: #CBD5E1;
+    --c-otimize: #22C55E;  --bg-otimize: rgba(34, 197, 94, 0.15);  --tx-otimize: #4ADE80;
+    --c-sette: #FB923C;    --bg-sette: rgba(251, 146, 60, 0.16);   --tx-sette: #FDBA74;
+    --c-reforma: #60A5FA;  --bg-reforma: rgba(96, 165, 250, 0.16); --tx-reforma: #93C5FD;
+    --c-part: #FACC15;     --bg-part: rgba(250, 204, 21, 0.15);    --tx-part: #FDE047;
+    --c-feriado: #C084FC;  --bg-feriado: rgba(192, 132, 252, 0.15);--tx-feriado: #D8B4FE;
+  }
 
-  .temp-Quente { background: #FEE2E2; color: #991B1B; }
-  .temp-Morno  { background: #FEF3C7; color: #92400E; }
-  .temp-Frio   { background: #E0F2FE; color: #075985; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-canvas);
+    background-image: var(--bg-ambient);
+    background-attachment: fixed;
+    color: var(--text-1);
+    letter-spacing: -0.012em;
+    transition: background-color 0.28s ease, color 0.25s ease;
+  }
+  .font-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
 
-  .dot-SR         { background: #64748B; }
-  .dot-Otimize    { background: #16A34A; }
-  .dot-Sette      { background: #EA580C; }
-  .dot-Reforma    { background: #2563EB; }
-  .dot-Particular { background: #CA8A04; }
+  /* Surfaces & Inputs */
+  .surf-1 { background: var(--surface-1); border: 1px solid var(--border-subtle); }
+  .surf-2 { background: var(--surface-2); border: 1px solid var(--border-subtle); }
+  .surf-glass { background: var(--surface-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  .tx-1 { color: var(--text-1); }
+  .tx-2 { color: var(--text-2); }
+  .tx-3 { color: var(--text-3); }
+  .bd-sub { border-color: var(--border-subtle); }
 
-  @keyframes fadeSlideUp {
+  .inp {
+    background: var(--surface-3);
+    color: var(--text-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+  }
+  .inp:focus {
+    outline: none;
+    background: var(--surface-1);
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  }
+  .btn-primary {
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+    transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, box-shadow 0.2s ease;
+  }
+  .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.96); }
+
+  .btn-ghost {
+    background: var(--surface-1);
+    color: var(--text-2);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-ghost:hover { border-color: var(--border-strong); color: var(--text-1); transform: translateY(-1px); }
+  .btn-ghost:active { transform: scale(0.96); }
+
+  /* Front accents */
+  .card-SR         { --front-c: var(--c-sr); }
+  .card-Otimize    { --front-c: var(--c-otimize); }
+  .card-Sette      { --front-c: var(--c-sette); }
+  .card-Reforma    { --front-c: var(--c-reforma); }
+  .card-Particular { --front-c: var(--c-part); }
+
+  .badge-SR         { background: var(--bg-sr); color: var(--tx-sr); }
+  .badge-Otimize    { background: var(--bg-otimize); color: var(--tx-otimize); }
+  .badge-Sette      { background: var(--bg-sette); color: var(--tx-sette); }
+  .badge-Reforma    { background: var(--bg-reforma); color: var(--tx-reforma); }
+  .badge-Particular { background: var(--bg-part); color: var(--tx-part); }
+  .badge-Feriado    { background: var(--bg-feriado); color: var(--tx-feriado); }
+
+  .cal-SR         { background: var(--bg-sr); border-left: 3px solid var(--c-sr); }
+  .cal-Otimize    { background: var(--bg-otimize); border-left: 3px solid var(--c-otimize); }
+  .cal-Sette      { background: var(--bg-sette); border-left: 3px solid var(--c-sette); }
+  .cal-Reforma    { background: var(--bg-reforma); border-left: 3px solid var(--c-reforma); }
+  .cal-Particular { background: var(--bg-part); border-left: 3px solid var(--c-part); }
+  .cal-Feriado    { background: var(--bg-feriado); border-left: 3px solid var(--c-feriado); }
+
+  .dot-SR         { background: var(--c-sr); }
+  .dot-Otimize    { background: var(--c-otimize); }
+  .dot-Sette      { background: var(--c-sette); }
+  .dot-Reforma    { background: var(--c-reforma); }
+  .dot-Particular { background: var(--c-part); }
+
+  .temp-Quente { background: rgba(239, 68, 68, 0.14); color: #EF4444; }
+  .temp-Morno  { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+  .temp-Frio   { background: rgba(14, 165, 233, 0.14); color: #0EA5E9; }
+
+  /* Sliding Navigation Pill */
+  .nav-track {
+    position: relative;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    padding: 3px;
+    border-radius: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+  }
+  #navPill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: 80px;
+    background: var(--pill-indicator);
+    box-shadow: var(--pill-shadow);
+    border-radius: 0.65rem;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .nav-tab {
+    position: relative;
+    z-index: 1;
+    color: var(--text-2);
+    transition: color 0.2s ease;
+  }
+  .nav-tab[data-active="true"] { color: var(--text-1); font-weight: 700; }
+
+  /* Kinetic Cards & Progressive Disclosure */
+  @keyframes cascadeIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.985); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes viewReveal {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  @keyframes modalSpring {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
   }
-  @keyframes pulseSoft {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.55; }
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.45); opacity: 0.55; }
   }
-  .view-enter { animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
-  .modal-card { animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-  .pulse-late { animation: pulseSoft 1.8s ease-in-out infinite; }
-  .card-lift { transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease; }
-  .card-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px rgba(15, 23, 42, 0.16); }
-  .dragging { opacity: 0.45; transform: rotate(1.5deg) scale(0.98); }
-  .drop-col { transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; }
-  .drag-over { background: #EFF6FF !important; border-color: #3B82F6 !important; box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.25); }
-  .btn-press { transition: transform 0.12s ease, background-color 0.15s ease; }
-  .btn-press:active { transform: scale(0.96); }
+
+  .view-stage { animation: viewReveal 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .modal-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    animation: modalSpring 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cascade-item {
+    animation: cascadeIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 32ms);
+  }
+
+  .k-card {
+    position: relative;
+    background: var(--surface-1);
+    box-shadow: var(--card-shadow);
+    border-radius: 0.9rem;
+    padding: 0.8rem 0.85rem 0.8rem 1rem;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, background-color 0.2s ease;
+    overflow: hidden;
+  }
+  .k-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3.5px;
+    border-radius: 0 4px 4px 0;
+    background: var(--front-c, var(--c-part));
+    transition: top 0.22s ease, bottom 0.22s ease;
+  }
+  .k-card:hover {
+    transform: translateY(-2.5px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .k-card:hover::before { top: 0; bottom: 0; }
+  .k-card.is-late { box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.38), var(--card-shadow); }
+
+  /* Progressive drawer on hover (always open on touch devices) */
+  .card-drawer {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    transition: max-height 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, transform 0.22s ease, margin-top 0.22s ease, padding-top 0.22s ease;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 1px solid transparent;
+  }
+  .k-card:hover .card-drawer,
+  .k-card:focus-within .card-drawer {
+    max-height: 52px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 0.6rem;
+    padding-top: 0.55rem;
+    border-top-color: var(--border-subtle);
+  }
+  @media (hover: none) {
+    .card-drawer {
+      max-height: 52px;
+      opacity: 1;
+      transform: none;
+      margin-top: 0.6rem;
+      padding-top: 0.55rem;
+      border-top-color: var(--border-subtle);
+    }
+  }
+
+  .dragging {
+    opacity: 0.55 !important;
+    transform: scale(1.02) rotate(1.5deg) !important;
+    box-shadow: var(--card-shadow-hover) !important;
+  }
+  .drop-col {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.1rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .drag-over {
+    border-color: #3B82F6 !important;
+    box-shadow: inset 0 0 0 1.5px rgba(59, 130, 246, 0.45), 0 8px 24px -8px rgba(59, 130, 246, 0.18);
+  }
+  .cal-drop-over {
+    background: rgba(59, 130, 246, 0.14) !important;
+    box-shadow: inset 0 0 0 1.5px rgba(59, 130, 246, 0.55);
+  }
+
+  /* Filter Chips */
+  .chip {
+    background: var(--surface-1);
+    color: var(--text-2);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .chip:hover { border-color: var(--border-strong); color: var(--text-1); }
+  .chip[data-active="true"] {
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+    border-color: var(--accent-bg);
+    box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.28);
+  }
+
+  /* Command bar halo */
+  .cmd-bar {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.22s ease, box-shadow 0.25s ease, transform 0.22s ease;
+  }
+  .cmd-bar:focus-within {
+    border-color: var(--border-strong);
+    box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.14), 0 0 0 3px rgba(59, 130, 246, 0.12);
+    transform: translateY(-1px);
+  }
+
+  /* Live time needle on Calendar */
+  .time-needle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #EF4444;
+    z-index: 15;
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
+  }
+  .time-needle::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -3.5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 9999px;
+    background: #EF4444;
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  .pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
+
+  /* Row exit animation when cobrar clicked */
+  .fup-row { transition: opacity 0.24s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
 </style>
 </head>
-<body class="text-slate-900 min-h-screen pb-16">
+<body class="min-h-screen pb-20">
 
-  <header class="bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30">
+  <!-- HEADER FLUTUANTE COM VIDRO E PÍLULA DESLIZANTE -->
+  <header class="surf-glass border-b bd-sub sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
       <div class="flex items-center gap-4 overflow-x-auto">
         <div class="flex items-center gap-2.5 shrink-0">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">MC</div>
+          <div class="w-8 h-8 rounded-xl btn-primary flex items-center justify-center font-extrabold text-xs tracking-tight shadow-sm">MC</div>
           <div class="hidden md:block leading-tight">
-            <div class="font-bold text-sm tracking-tight text-slate-900">Central Mateus</div>
-            <div id="connStatusLabel" class="text-[10px] font-medium text-emerald-600">Conectando...</div>
+            <div class="font-bold text-[13px] tracking-tight tx-1">Central Mateus</div>
+            <div class="flex items-center gap-1.5">
+              <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span id="connStatusLabel" class="text-[10px] font-medium tx-3 font-num">Aguardando PIN</span>
+            </div>
           </div>
         </div>
 
-        <nav class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl" aria-label="Navegação principal">
-          <button data-tab="agenda" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+        <nav id="mainNav" class="nav-track" aria-label="Navegação principal">
+          <div id="navPill"></div>
+          <button data-tab="agenda" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs sm:text-[13px] cursor-pointer inline-flex items-center gap-1.5">
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agenda</span>
           </button>
-          <button data-tab="tarefas" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
-            <i data-lucide="kanban" class="w-3.5 h-3.5"></i><span>Tarefas</span>
+          <button data-tab="tarefas" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs sm:text-[13px] cursor-pointer inline-flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i><span>Tarefas</span>
+            <span id="navFollowBadge" class="hidden font-num text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600">0</span>
           </button>
-          <button data-tab="followups" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
-            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i><span>Follow-ups</span>
-            <span id="navFollowBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">0</span>
-          </button>
-          <button data-tab="crm" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer inline-flex items-center gap-1.5">
+          <button data-tab="crm" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs sm:text-[13px] cursor-pointer inline-flex items-center gap-1.5">
             <i data-lucide="briefcase" class="w-3.5 h-3.5"></i><span>CRM</span>
           </button>
         </nav>
       </div>
 
       <div class="flex items-center gap-1.5 shrink-0">
-        <button id="btnSyncNow" title="Atualizar do Google" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        <button id="btnThemeToggle" title="Alternar modo Claro / Escuro" class="btn-ghost w-8 h-8 rounded-xl cursor-pointer inline-flex items-center justify-center">
+          <i id="themeIcon" data-lucide="moon" class="w-3.5 h-3.5"></i>
         </button>
-        <button id="btnOpenConnect" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5">
-          <span id="connDot" class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="hidden sm:inline">PIN</span>
+        <button id="btnSyncNow" title="Sincronizar com o Google" class="btn-ghost w-8 h-8 rounded-xl cursor-pointer inline-flex items-center justify-center">
+          <i id="syncIcon" data-lucide="refresh-cw" class="w-3.5 h-3.5 transition-transform duration-500"></i>
         </button>
-        <button id="btnOpenAudit" class="btn-press px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold cursor-pointer inline-flex items-center gap-1">
-          <i data-lucide="history" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Log</span>
+        <button id="btnOpenConnect" title="Configurar PIN" class="btn-ghost px-2.5 h-8 rounded-xl text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5">
+          <i data-lucide="key-round" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">PIN</span>
         </button>
-        <button id="btnPrimaryAdd" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm cursor-pointer inline-flex items-center gap-1">
-          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnPrimaryLabel">Novo</span>
+        <button id="btnOpenAudit" title="Log de Auditoria" class="btn-ghost px-2.5 h-8 rounded-xl text-xs font-semibold cursor-pointer inline-flex items-center gap-1">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Log</span>
+        </button>
+        <button id="btnPrimaryAdd" class="btn-primary px-3.5 h-8 rounded-xl text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnPrimaryLabel">Agendar</span>
         </button>
       </div>
     </div>
@@ -120,24 +416,34 @@
 
   <main class="max-w-7xl mx-auto px-4 pt-5 space-y-5">
 
-    <form id="quickForm" class="bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2 flex items-center gap-2.5 shadow-sm focus-within:ring-2 focus-within:ring-slate-900/15 focus-within:border-slate-400 transition">
-      <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-        <i data-lucide="sparkles" class="w-4 h-4"></i>
+    <!-- BARRA DE COMANDO PROGRESSIVA (CAPTURA + BUSCA) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+      <form id="quickForm" class="lg:col-span-8 cmd-bar rounded-2xl px-3.5 py-2 flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg surf-2 tx-2 flex items-center justify-center shrink-0">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+        </div>
+        <input id="quickInput" type="text" placeholder="Captura rápida: 'cobrar Karen contrato Alfa sexta', 'reunião Rafael SR quinta 11h'..." class="flex-1 py-1 text-sm bg-transparent tx-1 placeholder:text-slate-400 focus:outline-none">
+        <span class="hidden xl:inline-block font-num text-[10px] tx-3 px-1.5 py-0.5 rounded border bd-sub">Enter ↵</span>
+        <button type="submit" class="btn-primary px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shrink-0">Capturar</button>
+      </form>
+      <div class="lg:col-span-4 cmd-bar rounded-2xl px-3.5 py-2 flex items-center gap-2">
+        <i data-lucide="search" class="w-3.5 h-3.5 tx-3 shrink-0"></i>
+        <input id="globalSearchInput" type="search" placeholder="Filtrar cliente, equipe ou tarefa..." class="flex-1 py-1 text-sm bg-transparent tx-1 placeholder:text-slate-400 focus:outline-none">
+        <kbd class="font-num text-[10px] tx-3 px-1.5 py-0.5 rounded border bd-sub">/</kbd>
       </div>
-      <input id="quickInput" type="text" placeholder="Captura rápida: 'cobrar extrato Alfa sexta', 'marcar reunião Rafael SR hoje 11h' ou 'lead João Otimize quente'..." class="flex-1 py-1.5 text-sm bg-transparent focus:outline-none">
-      <button type="submit" class="btn-press px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold cursor-pointer shrink-0">Capturar</button>
-    </form>
+    </div>
 
-    <!-- ABA 1: AGENDA -->
-    <section id="tab-agenda" class="view-enter space-y-5">
+    <!-- ==================== ABA 1: AGENDA ==================== -->
+    <section id="tab-agenda" class="view-stage space-y-5">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <div class="lg:col-span-9 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="lg:col-span-9 surf-1 rounded-2xl p-4 sm:p-5" style="box-shadow: var(--card-shadow);">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div class="flex flex-wrap items-center gap-3">
-              <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>Google Agenda (08h – 18h)
+              <h2 class="text-sm font-bold tx-1 flex items-center gap-2">
+                <i data-lucide="calendar-clock" class="w-4 h-4 tx-2"></i>
+                <span id="calRangeTitle">Semana Atual</span>
               </h2>
-              <div class="hidden md:flex items-center gap-2.5 text-[11px] font-medium text-slate-500">
+              <div class="hidden xl:flex items-center gap-2.5 text-[11px] font-medium tx-2">
                 <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-SR"></span>SR</span>
                 <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Otimize"></span>Otimize</span>
                 <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Sette"></span>Sette</span>
@@ -145,102 +451,140 @@
                 <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full dot-Particular"></span>Particular</span>
               </div>
             </div>
-            <div class="inline-flex rounded-xl border border-slate-200 p-0.5 bg-slate-100 text-xs font-semibold">
-              <button id="calBtnDia" class="px-3 py-1 rounded-lg cursor-pointer transition">Hoje</button>
-              <button id="calBtnSemana" class="px-3 py-1 rounded-lg cursor-pointer transition">Semana</button>
+            <div class="flex items-center gap-2">
+              <div class="inline-flex items-center rounded-xl border bd-sub overflow-hidden text-xs font-semibold">
+                <button id="calPrevWeek" title="Semana anterior" class="px-2.5 py-1.5 hover:opacity-75 tx-2 cursor-pointer">&lsaquo;</button>
+                <button id="calResetWeek" class="px-2.5 py-1.5 hover:opacity-75 tx-1 border-x bd-sub cursor-pointer">Hoje</button>
+                <button id="calNextWeek" title="Próxima semana" class="px-2.5 py-1.5 hover:opacity-75 tx-2 cursor-pointer">&rsaquo;</button>
+              </div>
+              <div class="surf-2 rounded-xl p-0.5 inline-flex text-xs font-semibold">
+                <button id="calBtnDia" class="px-3 py-1 rounded-lg cursor-pointer transition">Dia</button>
+                <button id="calBtnSemana" class="px-3 py-1 rounded-lg cursor-pointer transition">Semana</button>
+              </div>
             </div>
           </div>
           <div id="calendarContainer" class="overflow-x-auto"></div>
         </div>
 
-        <aside class="lg:col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-3.5">
-          <div class="flex items-center justify-between">
+        <aside class="lg:col-span-3 surf-1 rounded-2xl p-4 space-y-4" style="box-shadow: var(--card-shadow);">
+          <div class="flex items-start justify-between gap-2">
             <div>
-              <h2 class="text-sm font-bold text-slate-900">Top 3 de Hoje</h2>
-              <p class="text-[11px] text-slate-500">Prazo legal → Cliente → Crescimento</p>
+              <div class="text-[10px] font-bold uppercase tracking-wider tx-3">Foco Pessoal</div>
+              <h2 class="text-sm font-bold tx-1 mt-0.5">Top 3 na Sua Mão</h2>
             </div>
-            <span id="lateCountPill" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 pulse-late"></span>
+            <span id="lateCountPill" class="hidden font-num text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-500 shrink-0"></span>
           </div>
           <div id="prioHojeList" class="space-y-2.5"></div>
-          <button data-tab="tarefas" class="btn-press w-full py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer flex items-center justify-center gap-1.5">
-            <span>Abrir quadro Trello</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          <div id="agendaFollowupHint" class="hidden"></div>
+          <button data-tab="tarefas" class="btn-ghost w-full py-2 rounded-xl text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5">
+            <span>Ir para Quadro de Tarefas</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
         </aside>
       </div>
     </section>
 
-    <!-- ABA 2: TAREFAS -->
-    <section id="tab-tarefas" class="hidden view-enter space-y-4">
-      <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-[200px]">
-          <div class="text-xs font-semibold text-slate-600">Progresso</div>
-          <div class="w-36 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div id="taskProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
+    <!-- ==================== ABA 2: TAREFAS (COM FOLLOW-UP INTEGRADO) ==================== -->
+    <section id="tab-tarefas" class="hidden view-stage space-y-4">
+      <div class="surf-1 rounded-2xl px-4 py-3 space-y-3" style="box-shadow: var(--card-shadow);">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Toggle inteligente: Quadro vs Fila de Cobrança -->
+            <div class="surf-2 p-0.5 rounded-xl inline-flex items-center text-xs font-semibold">
+              <button id="btnViewKanban" class="px-3 py-1.5 rounded-lg cursor-pointer transition inline-flex items-center gap-1.5">
+                <i data-lucide="columns-4" class="w-3.5 h-3.5"></i><span>Quadro</span>
+              </button>
+              <button id="btnViewFollowups" class="px-3 py-1.5 rounded-lg cursor-pointer transition inline-flex items-center gap-1.5">
+                <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i><span>Cobrar Hoje</span>
+                <span id="taskFollowChip" class="font-num text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-600">0</span>
+              </button>
+            </div>
+
+            <div class="hidden sm:flex items-center gap-2.5 pl-2 border-l bd-sub">
+              <div class="w-24 h-1.5 surf-2 rounded-full overflow-hidden">
+                <div id="taskProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width:0%"></div>
+              </div>
+              <span id="taskProgressText" class="font-num text-[11px] font-semibold tx-2">0%</span>
+            </div>
           </div>
-          <span id="taskProgressText" class="text-xs font-bold text-slate-700">0%</span>
+
+          <div id="frontFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
         </div>
-        <div id="frontFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
+
+        <!-- Barra deslizante da Equipe -->
+        <div class="flex items-center gap-2 pt-2.5 border-t bd-sub overflow-x-auto pb-0.5">
+          <span class="text-[11px] font-semibold tx-3 shrink-0">Equipe:</span>
+          <div id="assigneeFilters" class="flex items-center gap-1.5 text-xs shrink-0"></div>
+        </div>
       </div>
+
+      <!-- Visão 1: Quadro Kanban Progressivo -->
       <div id="trelloBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start"></div>
-    </section>
 
-    <!-- ABA 3: FOLLOW-UPS -->
-    <section id="tab-followups" class="hidden view-enter space-y-4">
-      <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm max-w-3xl">
-        <div class="flex items-center justify-between mb-4">
+      <!-- Visão 2: Fila Focada de Cobrança (integrada dentro de Tarefas!) -->
+      <div id="integratedFollowupBox" class="hidden surf-1 rounded-2xl p-5 max-w-4xl space-y-4" style="box-shadow: var(--card-shadow);">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b bd-sub">
           <div>
-            <h2 class="text-sm font-bold text-slate-900">Follow-ups para Cobrar</h2>
-            <p class="text-xs text-slate-500">Operacional + Propostas do CRM · "Cobrei" joga +2 dias úteis e soma no contador</p>
+            <h3 class="text-sm font-bold tx-1">Fila de Cobrança (Vencidos &amp; Hoje)</h3>
+            <p class="text-xs tx-2">Tarefas delegadas + propostas do CRM · Clique em WhatsApp para já cobrar e avançar +2 dias úteis</p>
           </div>
-          <span id="followupCountBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800"></span>
+          <span id="followupCountBadge" class="font-num text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600"></span>
         </div>
-        <div id="followupsList" class="divide-y divide-slate-100"></div>
+        <div id="followupsDueList" class="divide-y bd-sub"></div>
+
+        <details id="followupsFutureWrap" class="border-t bd-sub pt-3">
+          <summary class="text-xs font-semibold tx-3 cursor-pointer select-none flex items-center justify-between py-1">
+            <span>Já cobrados · Aguardando prazo futuro</span>
+            <span id="followupFutureBadge" class="font-num px-2 py-0.5 rounded-full surf-2 tx-2">0</span>
+          </summary>
+          <div id="followupsFutureList" class="divide-y bd-sub mt-2"></div>
+        </details>
       </div>
     </section>
 
-    <!-- ABA 4: CRM -->
-    <section id="tab-crm" class="hidden view-enter space-y-4">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
-          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-slate-400"></i>Leads Ativos</div>
-          <div id="crmKpiAtivos" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
+    <!-- ==================== ABA 3: CRM ==================== -->
+    <section id="tab-crm" class="hidden view-stage space-y-4">
+      <div class="surf-1 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-4 text-xs" style="box-shadow: var(--card-shadow);">
+        <div class="flex flex-wrap items-center gap-5 sm:gap-7">
+          <div class="flex items-center gap-1.5"><span class="tx-3">Ativos</span><strong id="crmKpiAtivos" class="font-num text-sm tx-1">0</strong></div>
+          <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="tx-3">Quentes</span><strong id="crmKpiQuentes" class="font-num text-sm text-red-500">0</strong></div>
+          <div class="flex items-center gap-1.5"><span class="tx-3">Recorrente</span><strong id="crmKpiMensal" class="font-num text-sm text-emerald-500">R$ 0/mês</strong></div>
+          <div class="flex items-center gap-1.5"><span class="tx-3">Projetos</span><strong id="crmKpiProjetos" class="font-num text-sm text-blue-500">R$ 0</strong></div>
+          <div class="flex items-center gap-1.5"><span class="tx-3">Fechados</span><strong id="crmKpiFechados" class="font-num text-sm tx-1">0</strong></div>
         </div>
-        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
-          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="flame" class="w-3.5 h-3.5 text-red-500"></i>Quentes</div>
-          <div id="crmKpiQuentes" class="text-2xl font-extrabold text-red-600 mt-1">0</div>
-        </div>
-        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
-          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5 text-emerald-600"></i>Recorrente</div>
-          <div id="crmKpiMensal" class="text-2xl font-extrabold text-emerald-700 mt-1">R$ 0/mês</div>
-        </div>
-        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3.5 shadow-sm card-lift">
-          <div class="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-600"></i>Projetos</div>
-          <div id="crmKpiProjetos" class="text-2xl font-extrabold text-blue-700 mt-1">R$ 0</div>
-        </div>
+        <button id="toggleLostLeads" class="chip px-3 py-1 rounded-full text-xs font-semibold cursor-pointer">Perdidos (0)</button>
       </div>
+
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div id="crmFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
         <div id="crmTempFilters" class="flex flex-wrap gap-1.5 text-xs"></div>
       </div>
+
       <div id="crmBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start"></div>
+
+      <div id="lostLeadsPanel" class="hidden surf-1 rounded-2xl p-4 space-y-2.5" style="box-shadow: var(--card-shadow);">
+        <div class="text-xs font-bold tx-2">Leads Arquivados (Perdidos) — clique para reabrir</div>
+        <div id="lostLeadsList" class="grid grid-cols-1 md:grid-cols-3 gap-2.5"></div>
+      </div>
     </section>
 
   </main>
 
+  <!-- ==================== MODAIS ==================== -->
+
   <!-- Modal Detalhes Tarefa -->
-  <div id="cardModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+  <div id="cardModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
       <div class="flex items-start justify-between gap-3">
         <div class="flex-1">
-          <span id="modalFrontBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5"></span>
-          <input id="modalTitleInput" type="text" class="w-full text-base font-bold text-slate-900 border border-transparent hover:border-slate-200 focus:border-slate-400 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
+          <span id="modalFrontBadge" class="inline-block font-num text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-1.5"></span>
+          <input id="modalTitleInput" type="text" class="w-full text-base font-bold tx-1 bg-transparent border border-transparent hover:border-slate-500/30 focus:border-slate-500/60 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
         </div>
-        <button id="closeCardModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
+        <button id="closeCardModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
       </div>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Coluna</label>
-          <select id="modalStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Coluna</label>
+          <select id="modalStage" class="inp w-full px-2.5 py-2 text-sm">
             <option value="inbox">Caixa de Entrada</option>
             <option value="todo">A Fazer</option>
             <option value="waiting">Aguardando / Follow-up</option>
@@ -248,12 +592,12 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Vencimento</label>
-          <input id="modalDue" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Vencimento</label>
+          <input id="modalDue" type="date" class="inp font-num w-full px-2.5 py-2 text-sm">
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Frente</label>
-          <select id="modalFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Frente</label>
+          <select id="modalFront" class="inp w-full px-2.5 py-2 text-sm">
             <option value="SR">SR (Cinza)</option>
             <option value="Otimize">Otimize (Verde)</option>
             <option value="Sette">Sette (Laranja)</option>
@@ -262,49 +606,74 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Prioridade</label>
-          <select id="modalPriority" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Prioridade</label>
+          <select id="modalPriority" class="inp w-full px-2.5 py-2 text-sm">
             <option value="1">1 · Prazo legal / multa</option>
             <option value="2">2 · Cliente / receita</option>
             <option value="3">3 · Crescimento</option>
             <option value="4">4 · Resto</option>
           </select>
         </div>
+        <div>
+          <label class="block font-semibold tx-2 mb-1">Tipo</label>
+          <select id="modalType" class="inp w-full px-2.5 py-2 text-sm">
+            <option>Follow-up</option>
+            <option>Tarefa</option>
+            <option>Entrega/prazo</option>
+            <option>Marcar reunião</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold tx-2 mb-1">Com quem está</label>
+          <select id="modalAssignee" class="inp w-full px-2.5 py-2 text-sm"></select>
+        </div>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="modalCobreiBtn" class="btn-press px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-xs cursor-pointer"></button>
-        <button id="modalSaveFields" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Salvar</button>
-        <button id="modalDeleteCard" class="btn-press ml-auto px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs cursor-pointer">Excluir</button>
+      <div class="text-xs">
+        <label class="block font-semibold tx-2 mb-1">Contato / WhatsApp</label>
+        <input id="modalContact" type="text" placeholder="Ex: (48) 99999-0000 ou nome" class="inp w-full px-3 py-2 text-sm">
       </div>
-      <div class="border-t border-slate-100 pt-3">
-        <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Comentários & Histórico</h4>
+      <div class="text-xs">
+        <label class="block font-semibold tx-2 mb-1">Observações</label>
+        <textarea id="modalNotes" rows="2" placeholder="Contexto, detalhes ou link relevante..." class="inp w-full px-3 py-2 text-sm resize-y"></textarea>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        <button id="modalCobreiBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 font-semibold text-xs cursor-pointer transition"></button>
+        <button id="modalBlockCalBtn" class="px-3 py-1.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-500 font-semibold text-xs cursor-pointer transition">📅 Bloquear 1h</button>
+        <button id="modalSaveFields" class="btn-primary px-4 py-1.5 rounded-xl font-semibold text-xs cursor-pointer">Salvar</button>
+        <button id="modalDeleteCard" class="ml-auto px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold text-xs cursor-pointer transition">Excluir</button>
+      </div>
+      <div class="border-t bd-sub pt-3">
+        <h4 class="text-[11px] font-bold uppercase tracking-wider tx-3 mb-2">Comentários &amp; Histórico</h4>
         <div id="modalComments" class="space-y-2 max-h-44 overflow-y-auto mb-2.5"></div>
         <div class="flex gap-2">
-          <input id="newCommentInput" type="text" placeholder="Escrever comentário ou atualização..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs">
-          <button id="addCommentBtn" class="btn-press px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Enviar</button>
+          <input id="newCommentInput" type="text" placeholder="Escrever comentário ou atualização..." class="inp flex-1 px-3 py-2 text-xs">
+          <button id="addCommentBtn" class="btn-primary px-3.5 py-2 rounded-xl font-semibold text-xs cursor-pointer">Enviar</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Modal Detalhes Lead CRM -->
-  <div id="leadModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+  <div id="leadModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
       <div class="flex items-start justify-between gap-3">
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-1.5">
-            <span id="leadFrontBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
-            <span id="leadTempBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
+            <span id="leadFrontBadge" class="inline-block font-num text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+            <span id="leadTempBadge" class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
           </div>
-          <input id="leadModalNameInput" type="text" class="w-full text-base font-bold text-slate-900 border border-transparent hover:border-slate-200 focus:border-slate-400 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
-          <p id="leadModalMeta" class="text-xs text-slate-500 mt-0.5"></p>
+          <input id="leadModalNameInput" type="text" class="w-full text-base font-bold tx-1 bg-transparent border border-transparent hover:border-slate-500/30 focus:border-slate-500/60 rounded-lg px-2 py-1 -ml-2 focus:outline-none">
         </div>
-        <button id="closeLeadModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
+        <button id="closeLeadModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="text-xs">
+        <label class="block font-semibold tx-2 mb-1">Contato / Telefone / Quem indicou</label>
+        <input id="leadContactInput" type="text" placeholder="Ex: Dr. Marcelo · (48) 99999-0000" class="inp w-full px-3 py-2 text-sm">
       </div>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Etapa do Funil</label>
-          <select id="leadStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Etapa do Funil</label>
+          <select id="leadStage" class="inp w-full px-2.5 py-2 text-sm">
             <option value="novo">Novo Lead</option>
             <option value="diagnostico">Diagnóstico / Reunião</option>
             <option value="proposta">Proposta Enviada</option>
@@ -313,16 +682,16 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Temperatura</label>
-          <select id="leadTemp" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Temperatura</label>
+          <select id="leadTemp" class="inp w-full px-2.5 py-2 text-sm">
             <option value="Quente">Quente</option>
             <option value="Morno">Morno</option>
             <option value="Frio">Frio</option>
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Como chegou</label>
-          <select id="leadOrigin" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Como chegou</label>
+          <select id="leadOrigin" class="inp w-full px-2.5 py-2 text-sm">
             <option>Indicação</option>
             <option>WhatsApp</option>
             <option>Instagram</option>
@@ -332,8 +701,8 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Frente</label>
-          <select id="leadFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Frente</label>
+          <select id="leadFront" class="inp w-full px-2.5 py-2 text-sm">
             <option value="Otimize">Otimize (Verde)</option>
             <option value="SR">SR (Cinza)</option>
             <option value="Sette">Sette (Laranja)</option>
@@ -341,57 +710,57 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Valor (R$)</label>
+          <label class="block font-semibold tx-2 mb-1">Valor (R$)</label>
           <div class="flex gap-1.5">
-            <input id="leadValue" type="number" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
-            <select id="leadUnit" class="border border-slate-300 rounded-xl px-2 py-2 text-xs">
+            <input id="leadValue" type="number" class="inp font-num w-full px-2.5 py-2 text-sm">
+            <select id="leadUnit" class="inp px-2 py-2 text-xs">
               <option value="/mês">/mês</option>
               <option value="projeto">projeto</option>
             </select>
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-500 mb-1">Próximo Contato</label>
-          <input id="leadNextDate" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Próximo Contato</label>
+          <input id="leadNextDate" type="date" class="inp font-num w-full px-2.5 py-2 text-sm">
         </div>
       </div>
       <div class="text-xs">
-        <label class="block font-semibold text-slate-500 mb-1">Próximo passo combinado</label>
-        <input id="leadNextStep" type="text" placeholder="Ex: Enviar proposta revisada até quinta..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        <label class="block font-semibold tx-2 mb-1">Próximo passo combinado</label>
+        <input id="leadNextStep" type="text" placeholder="Ex: Enviar proposta revisada até quinta..." class="inp w-full px-3 py-2 text-sm">
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="leadCobreiBtn" class="btn-press px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-semibold text-xs cursor-pointer"></button>
-        <button id="leadOnboardingBtn" class="hidden btn-press px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs cursor-pointer">Criar Onboarding</button>
-        <button id="leadSaveBtn" class="btn-press px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Salvar</button>
-        <button id="leadDeleteBtn" class="btn-press ml-auto px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs cursor-pointer">Excluir</button>
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        <button id="leadCobreiBtn" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 font-semibold text-xs cursor-pointer transition"></button>
+        <button id="leadOnboardingBtn" class="hidden px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs cursor-pointer transition">Criar Onboarding</button>
+        <button id="leadSaveBtn" class="btn-primary px-4 py-1.5 rounded-xl font-semibold text-xs cursor-pointer">Salvar</button>
+        <button id="leadDeleteBtn" class="ml-auto px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold text-xs cursor-pointer transition">Excluir</button>
       </div>
-      <div class="border-t border-slate-100 pt-3">
-        <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Histórico da Negociação</h4>
+      <div class="border-t bd-sub pt-3">
+        <h4 class="text-[11px] font-bold uppercase tracking-wider tx-3 mb-2">Histórico da Negociação</h4>
         <div id="leadComments" class="space-y-2 max-h-44 overflow-y-auto mb-2.5"></div>
         <div class="flex gap-2">
-          <input id="newLeadCommentInput" type="text" placeholder="Registrar retorno do lead..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs">
-          <button id="addLeadCommentBtn" class="btn-press px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer">Enviar</button>
+          <input id="newLeadCommentInput" type="text" placeholder="Registrar retorno do lead..." class="inp flex-1 px-3 py-2 text-xs">
+          <button id="addLeadCommentBtn" class="btn-primary px-3.5 py-2 rounded-xl font-semibold text-xs cursor-pointer">Enviar</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Modal Nova Demanda -->
-  <div id="newTaskModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+  <div id="newTaskModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold">Nova Demanda</h3>
-        <button id="closeNewTask" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+        <h3 class="text-base font-bold tx-1">Nova Demanda</h3>
+        <button id="closeNewTask" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
       </div>
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Título</label>
-          <input id="ntTitle" type="text" placeholder="Ex: Cobrar documento do cliente..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Título</label>
+          <input id="ntTitle" type="text" placeholder="Ex: Cobrar documento do cliente..." class="inp w-full px-3 py-2 text-sm">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Frente</label>
-            <select id="ntFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Frente</label>
+            <select id="ntFront" class="inp w-full px-2.5 py-2 text-sm">
               <option value="Otimize">Otimize (Verde)</option>
               <option value="SR">SR (Cinza)</option>
               <option value="Sette">Sette (Laranja)</option>
@@ -400,8 +769,8 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Tipo</label>
-            <select id="ntType" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Tipo</label>
+            <select id="ntType" class="inp w-full px-2.5 py-2 text-sm">
               <option>Follow-up</option>
               <option>Tarefa</option>
               <option>Entrega/prazo</option>
@@ -411,8 +780,8 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Prioridade</label>
-            <select id="ntPriority" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Prioridade</label>
+            <select id="ntPriority" class="inp w-full px-2.5 py-2 text-sm">
               <option value="1">1 · Prazo legal / multa</option>
               <option value="2" selected>2 · Cliente / receita</option>
               <option value="3">3 · Crescimento</option>
@@ -420,34 +789,48 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Vencimento</label>
-            <input id="ntDue" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Vencimento</label>
+            <input id="ntDue" type="date" class="inp font-num w-full px-2.5 py-2 text-sm">
           </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold tx-2 mb-1">Com quem está</label>
+            <select id="ntAssignee" class="inp w-full px-2.5 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block font-semibold tx-2 mb-1">Contato / WhatsApp</label>
+            <input id="ntContact" type="text" placeholder="(48) 99999-0000" class="inp w-full px-2.5 py-2 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold tx-2 mb-1">Observações (opcional)</label>
+          <input id="ntNotes" type="text" placeholder="Contexto ou detalhes rápidos..." class="inp w-full px-3 py-2 text-sm">
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
-        <button id="cancelNewTask" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
-        <button id="confirmNewTask" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Criar Demanda</button>
+        <button id="cancelNewTask" class="btn-ghost px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmNewTask" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Criar Demanda</button>
       </div>
     </div>
   </div>
 
   <!-- Modal Novo Lead -->
-  <div id="newLeadModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto">
+  <div id="newLeadModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold">Novo Lead (CRM)</h3>
-        <button id="closeNewLead" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+        <h3 class="text-base font-bold tx-1">Novo Lead (CRM)</h3>
+        <button id="closeNewLead" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
       </div>
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Nome do Lead / Empresa</label>
-          <input id="nlName" type="text" placeholder="Ex: Clínica Vida Plena" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Nome do Lead / Empresa</label>
+          <input id="nlName" type="text" placeholder="Ex: Clínica Vida Plena" class="inp w-full px-3 py-2 text-sm">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Frente</label>
-            <select id="nlFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Frente</label>
+            <select id="nlFront" class="inp w-full px-2.5 py-2 text-sm">
               <option value="Otimize">Otimize (Verde)</option>
               <option value="SR">SR (Cinza)</option>
               <option value="Sette">Sette (Laranja)</option>
@@ -455,8 +838,8 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Temperatura</label>
-            <select id="nlTemp" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Temperatura</label>
+            <select id="nlTemp" class="inp w-full px-2.5 py-2 text-sm">
               <option value="Quente">Quente</option>
               <option value="Morno" selected>Morno</option>
               <option value="Frio">Frio</option>
@@ -465,8 +848,8 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Como chegou</label>
-            <select id="nlOrigin" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Como chegou</label>
+            <select id="nlOrigin" class="inp w-full px-2.5 py-2 text-sm">
               <option>Indicação</option>
               <option>WhatsApp</option>
               <option>Instagram</option>
@@ -476,8 +859,8 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Em que passo está</label>
-            <select id="nlStage" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Em que passo está</label>
+            <select id="nlStage" class="inp w-full px-2.5 py-2 text-sm">
               <option value="novo">Novo Lead</option>
               <option value="diagnostico">Diagnóstico / Reunião</option>
               <option value="proposta">Proposta Enviada</option>
@@ -486,52 +869,70 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Valor (R$)</label>
+            <label class="block font-semibold tx-2 mb-1">Valor (R$)</label>
             <div class="flex gap-1">
-              <input id="nlValue" type="number" value="2500" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
-              <select id="nlUnit" class="border border-slate-300 rounded-xl px-1.5 py-2 text-xs">
+              <input id="nlValue" type="number" value="2500" class="inp font-num w-full px-2.5 py-2 text-sm">
+              <select id="nlUnit" class="inp px-1.5 py-2 text-xs">
                 <option value="/mês">/mês</option>
                 <option value="projeto">projeto</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">Próximo contato</label>
-            <input id="nlNextDate" type="date" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+            <label class="block font-semibold tx-2 mb-1">Próximo contato</label>
+            <input id="nlNextDate" type="date" class="inp font-num w-full px-2.5 py-2 text-sm">
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Contato / Quem indicou</label>
-          <input id="nlContact" type="text" placeholder="Ex: Dr. Marcelo · (48) 99999-0000" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Contato / Quem indicou</label>
+          <input id="nlContact" type="text" placeholder="Ex: Dr. Marcelo · (48) 99999-0000" class="inp w-full px-3 py-2 text-sm">
         </div>
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Próximo passo combinado</label>
-          <input id="nlNextStep" type="text" placeholder="Ex: Agendar diagnóstico ou enviar proposta" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Próximo passo combinado</label>
+          <input id="nlNextStep" type="text" placeholder="Ex: Agendar diagnóstico ou enviar proposta" class="inp w-full px-3 py-2 text-sm">
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
-        <button id="cancelNewLead" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
-        <button id="confirmNewLead" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Salvar Lead</button>
+        <button id="cancelNewLead" class="btn-ghost px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmNewLead" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Salvar Lead</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Agendar em Horário Livre -->
-  <div id="slotModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+  <!-- Modal Agendar Compromisso -->
+  <div id="slotModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold">Agendar compromisso (1h)</h3>
-        <button id="closeSlotModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+        <h3 class="text-base font-bold tx-1">Agendar Compromisso</h3>
+        <button id="closeSlotModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
       </div>
-      <p id="slotLabel" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl"></p>
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Título</label>
-          <input id="slotTitle" type="text" placeholder="Ex: Reunião com cliente..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Título</label>
+          <input id="slotTitle" type="text" placeholder="Ex: Reunião com cliente..." class="inp w-full px-3 py-2 text-sm">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold tx-2 mb-1">Data</label>
+            <input id="slotDate" type="date" class="inp font-num w-full px-2 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold tx-2 mb-1">Início</label>
+            <select id="slotHour" class="inp font-num w-full px-2 py-2 text-xs"></select>
+          </div>
+          <div>
+            <label class="block font-semibold tx-2 mb-1">Duração</label>
+            <select id="slotDuration" class="inp w-full px-2 py-2 text-xs">
+              <option value="30">30 min</option>
+              <option value="60" selected>1 hora</option>
+              <option value="90">1h30</option>
+              <option value="120">2 horas</option>
+            </select>
+          </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">Agenda / Frente</label>
-          <select id="slotFront" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">Agenda / Frente</label>
+          <select id="slotFront" class="inp w-full px-2.5 py-2 text-sm">
             <option value="SR">SR Contabilidade (Cinza)</option>
             <option value="Otimize">Otimize (Verde)</option>
             <option value="Sette">Consultoria Sette (Laranja)</option>
@@ -541,59 +942,80 @@
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
-        <button id="cancelSlotModal" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
-        <button id="confirmSlotBtn" class="btn-press px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer">Salvar na Agenda</button>
+        <button id="cancelSlotModal" class="btn-ghost px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Cancelar</button>
+        <button id="confirmSlotBtn" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Salvar na Agenda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes Evento da Agenda -->
+  <div id="eventModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span id="evFrontBadge" class="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5"></span>
+          <h3 id="evTitle" class="text-base font-bold tx-1"></h3>
+          <p id="evTimeMeta" class="font-num text-xs tx-2 mt-0.5"></p>
+        </div>
+        <button id="closeEventModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
+      </div>
+      <div id="evDetailsBox" class="text-xs tx-2 surf-2 rounded-xl p-3 space-y-1.5"></div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="evDeleteBtn" class="hidden px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-semibold cursor-pointer transition">Excluir da Agenda</button>
+        <button id="evCloseBtn" class="btn-primary ml-auto px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Fechar</button>
       </div>
     </div>
   </div>
 
   <!-- Modal PIN / Conexão Google -->
-  <div id="connectModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
+  <div id="connectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold">Conexão Google & PIN</h3>
-        <button id="closeConnectModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+        <h3 class="text-base font-bold tx-1">Acesso Seguro — PIN Pessoal</h3>
+        <button id="closeConnectModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
       </div>
-      <p class="text-xs text-slate-500">Já pré-configurado com o seu Apps Script. Se você trocou o PIN no <code>Code.gs</code>, informe aqui.</p>
-      <div class="space-y-2.5 text-xs">
+      <p class="text-xs tx-2">Por segurança, o PIN não fica exposto no código público. Digite uma vez e ele ficará salvo apenas neste navegador.</p>
+      <form id="connectForm" class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-600 mb-1">URL do Apps Script (/exec)</label>
-          <input id="cfgUrlInput" type="url" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+          <label class="block font-semibold tx-2 mb-1">PIN Pessoal</label>
+          <input id="cfgPinInput" type="password" autocomplete="current-password" placeholder="Digite seu PIN..." class="inp font-num w-full px-3 py-2 text-sm">
         </div>
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1">PIN Pessoal</label>
-          <input id="cfgPinInput" type="password" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
+        <details class="pt-1">
+          <summary class="text-[11px] font-semibold tx-3 cursor-pointer">Configuração avançada (URL do Apps Script)</summary>
+          <div class="mt-2">
+            <input id="cfgUrlInput" type="url" class="inp w-full px-3 py-2 text-xs">
+          </div>
+        </details>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="submit" id="saveConnectBtn" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Entrar e Sincronizar</button>
         </div>
-      </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button id="saveConnectBtn" class="btn-press px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer">Salvar e Sincronizar</button>
-      </div>
+      </form>
     </div>
   </div>
 
   <!-- Modal Log de Auditoria -->
-  <div id="auditModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="modal-card bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-5 shadow-2xl space-y-3">
+  <div id="auditModal" class="fixed inset-0 bg-black/55 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="modal-card rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-5 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold">Log de Auditoria</h3>
-        <button id="closeAuditModal" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2 cursor-pointer">&times;</button>
+        <h3 class="text-base font-bold tx-1">Log de Auditoria</h3>
+        <button id="closeAuditModal" class="tx-3 hover:opacity-80 text-xl font-bold px-2 cursor-pointer">&times;</button>
       </div>
-      <div id="auditList" class="divide-y divide-slate-100 text-xs"></div>
+      <div id="auditList" class="divide-y bd-sub text-xs"></div>
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-xl hidden z-50"></div>
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 btn-primary text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl hidden z-50"></div>
 
 <script>
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwaNmGusJyK8SrLZSROtnfortnw4JFbDykrYPW7_DbYOItdc9AabsgSODiYJpN2qwDSyg/exec';
-const DEFAULT_API_PIN = '202600';
 
 const FRONTS = {
-  SR:         { label: 'SR', colorName: 'Cinza' },
-  Otimize:    { label: 'Otimize', colorName: 'Verde' },
-  Sette:      { label: 'Sette', colorName: 'Laranja' },
-  Reforma:    { label: 'Reforma', colorName: 'Azul' },
-  Particular: { label: 'Particular', colorName: 'Amarelo' }
+  SR:         { label: 'SR' },
+  Otimize:    { label: 'Otimize' },
+  Sette:      { label: 'Sette' },
+  Reforma:    { label: 'Reforma' },
+  Particular: { label: 'Particular' },
+  Feriado:    { label: 'Feriado' }
 };
 
 const STAGES = [
@@ -610,6 +1032,68 @@ const CRM_STAGES = [
   { id: 'fechado',     title: 'Fechado' }
 ];
 
+const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+const ASSIGNEES = [
+  { id: 'Comigo',    label: '⚡ Comigo' },
+  { id: 'Karen',     label: 'Karen' },
+  { id: 'Nicolas',   label: 'Nicolas' },
+  { id: 'Tiago',     label: 'Tiago' },
+  { id: 'Elizandra', label: 'Elizandra' },
+  { id: 'Kalleo',    label: 'Kalleo' },
+  { id: 'Anilton',   label: 'Anilton' },
+  { id: 'Graciele',  label: 'Graciele' },
+  { id: 'Cliente',   label: '🏢 Cliente' }
+];
+
+function assigneeLabel(id) {
+  const f = ASSIGNEES.find(a => a.id === (id || 'Comigo'));
+  return f ? (f.id === 'Comigo' || f.id === 'Cliente' ? f.label : `👤 ${f.label}`) : `👤 ${id}`;
+}
+
+function openWhatsAppCharge(contact, title, assignee) {
+  const digits = String(contact || '').replace(/\D/g, '');
+  const phone = digits.length >= 10 ? (digits.startsWith('55') ? digits : '55' + digits) : '';
+  const saudacao = assignee && assignee !== 'Comigo' && assignee !== 'Cliente' ? `Oi ${assignee}, tudo bem?` : 'Oi, tudo bem?';
+  const msg = `${saudacao} Passando para acompanhar: ${title}`;
+  const url = phone
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+const STATE = {
+  activeTab: 'agenda',
+  taskSubMode: 'kanban', // 'kanban' | 'followups'
+  calMode: 'semana',
+  weekOffset: 0,
+  frontFilter: 'ALL',
+  assigneeFilter: 'ALL',
+  crmFilter: 'ALL',
+  crmTempFilter: 'ALL',
+  searchQuery: '',
+  showLostLeads: false,
+  showOldDone: false,
+  activeCardId: null,
+  activeLeadId: null,
+  activeEvent: null,
+  dragInfo: null,
+  busyIds: new Set(),
+  pendingWrites: 0,
+  apiUrl: DEFAULT_API_URL,
+  apiPin: '',
+  audit: [],
+  events: [],
+  cards: [],
+  leads: []
+};
+
+function matchesSearch(parts) {
+  const q = STATE.searchQuery.trim().toLowerCase();
+  if (!q) return true;
+  return parts.join(' ').toLowerCase().includes(q);
+}
+
 function localISO(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -617,10 +1101,12 @@ function localISO(d) {
   return `${y}-${m}-${day}`;
 }
 
-function buildCurrentWeek() {
+function getTodayISO() { return localISO(new Date()); }
+
+function buildWeekDays(weekOffset) {
   const now = new Date();
-  const dow = now.getDay(); // 0=Dom .. 6=Sab
-  const diffMon = (dow === 0 ? -6 : 1 - dow);
+  const dow = now.getDay();
+  const diffMon = (dow === 0 ? 1 : 1 - dow) + (weekOffset * 7);
   const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffMon);
   const names = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
   return names.map((nm, i) => {
@@ -628,63 +1114,158 @@ function buildCurrentWeek() {
     const iso = localISO(dt);
     const dd = String(dt.getDate()).padStart(2, '0');
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
-    return { label: `${nm} ${dd}/${mm}`, iso };
+    return { name: nm, dateStr: `${dd}/${mm}`, label: `${nm} ${dd}/${mm}`, iso };
   });
 }
 
-const TODAY = localISO(new Date());
-const DAYS = buildCurrentWeek();
-const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+function getTodayDayObj() {
+  const now = new Date();
+  const names = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  return { name: names[now.getDay()], dateStr: `${dd}/${mm}`, label: `${names[now.getDay()]} ${dd}/${mm}`, iso: localISO(now) };
+}
 
-const STATE = {
-  activeTab: 'agenda',
-  calMode: 'semana',
-  frontFilter: 'ALL',
-  crmFilter: 'ALL',
-  crmTempFilter: 'ALL',
-  activeCardId: null,
-  activeLeadId: null,
-  dragInfo: null,
-  pendingSlot: null,
-  apiUrl: DEFAULT_API_URL,
-  apiPin: DEFAULT_API_PIN,
-  audit: [],
-  events: [],
-  cards: [],
-  leads: []
-};
+function inferEventFront(ev) {
+  const base = ev.front || 'Particular';
+  if (base !== 'Particular') return base;
+  const s = String(ev.title || '');
+  if (/\|\s*sr\b|\bsr\s+contab/i.test(s)) return 'SR';
+  if (/\|\s*otimize\b|\botimize\b/i.test(s)) return 'Otimize';
+  if (/\|\s*sette\b|\bsette\b/i.test(s)) return 'Sette';
+  if (/\|\s*reforma\b|\breforma\b/i.test(s)) return 'Reforma';
+  return base;
+}
+
+function normalizeEvent(ev) {
+  const startMin = ev.startMin != null ? Number(ev.startMin) : (Number(ev.hour || 8) * 60);
+  const endMin = ev.endMin != null ? Number(ev.endMin) : (startMin + 60);
+  return {
+    ...ev,
+    front: inferEventFront(ev),
+    startMin,
+    endMin: endMin > startMin ? endMin : startMin + 60,
+    allDay: Boolean(ev.allDay)
+  };
+}
+
+function fmtMin(m) {
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+
+function eventsOverlap(a, b) { return a.startMin < b.endMin && b.startMin < a.endMin; }
+
+/* Theme Switcher */
+function syncThemeIcon() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.setAttribute('data-lucide', dark ? 'sun' : 'moon');
+    renderIcons();
+  }
+}
+
+document.getElementById('btnThemeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('mc_theme', next); } catch (_) {}
+  syncThemeIcon();
+});
+
+/* Sliding Navigation Pill */
+function updateNavPill() {
+  const activeBtn = document.querySelector(`.nav-tab[data-tab="${STATE.activeTab}"]`);
+  const pill = document.getElementById('navPill');
+  if (!activeBtn || !pill) return;
+  pill.style.width = `${activeBtn.offsetWidth}px`;
+  pill.style.transform = `translateX(${activeBtn.offsetLeft - 3}px)`;
+}
+window.addEventListener('resize', updateNavPill);
+
+function populateHourSelect() {
+  const sel = document.getElementById('slotHour');
+  let opts = '';
+  for (let h = 8; h <= 17; h++) {
+    opts += `<option value="${h * 60}">${String(h).padStart(2, '0')}:00</option>`;
+    opts += `<option value="${h * 60 + 30}">${String(h).padStart(2, '0')}:30</option>`;
+  }
+  sel.innerHTML = opts;
+}
+
+function populateAssigneeSelects() {
+  const opts = ASSIGNEES.map(a => `<option value="${a.id}">${assigneeLabel(a.id)}</option>`).join('');
+  document.getElementById('modalAssignee').innerHTML = opts;
+  document.getElementById('ntAssignee').innerHTML = opts;
+}
 
 function loadSavedConfig() {
   try {
     STATE.apiUrl = localStorage.getItem('mc_api_url') || DEFAULT_API_URL;
-    STATE.apiPin = localStorage.getItem('mc_api_pin') || DEFAULT_API_PIN;
+    STATE.apiPin = localStorage.getItem('mc_api_pin') || '';
   } catch (_) {}
-  document.getElementById('ntDue').value = TODAY;
-  document.getElementById('nlNextDate').value = TODAY;
+  const today = getTodayISO();
+  document.getElementById('ntDue').value = today;
+  document.getElementById('nlNextDate').value = today;
+  document.getElementById('slotDate').value = today;
 }
 
-async function syncFromGoogle() {
+function openConnectModal() {
+  document.getElementById('cfgUrlInput').value = STATE.apiUrl;
+  document.getElementById('cfgPinInput').value = STATE.apiPin;
+  const m = document.getElementById('connectModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+  setTimeout(() => document.getElementById('cfgPinInput').focus(), 60);
+}
+
+async function syncFromGoogle(silent) {
+  if (!STATE.apiPin) {
+    document.getElementById('connStatusLabel').textContent = 'Informe o PIN';
+    document.getElementById('connDot').className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+    openConnectModal();
+    return;
+  }
   document.getElementById('connStatusLabel').textContent = 'Sincronizando...';
+  const sIcon = document.getElementById('syncIcon');
+  if (sIcon) sIcon.classList.add('animate-spin');
   try {
-    const res = await fetch(`${STATE.apiUrl}?pin=${encodeURIComponent(STATE.apiPin)}`);
-    const json = await res.json();
+    // Envia PIN no corpo (POST) para não expor o PIN na URL; cai para GET apenas se o Apps Script ainda estiver na versão antiga
+    let res = await fetch(STATE.apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'sync', pin: STATE.apiPin })
+    });
+    let json = await res.json();
+    if (!json.ok && /desconhecida/i.test(json.error || '')) {
+      res = await fetch(`${STATE.apiUrl}?pin=${encodeURIComponent(STATE.apiPin)}`);
+      json = await res.json();
+    }
     if (!json.ok) throw new Error(json.error || 'PIN incorreto ou erro no script');
     STATE.cards = Array.isArray(json.cards) ? json.cards : [];
     STATE.leads = Array.isArray(json.leads) ? json.leads : [];
-    STATE.events = Array.isArray(json.events) ? json.events : [];
+    STATE.events = Array.isArray(json.events) ? json.events.map(normalizeEvent) : [];
     STATE.audit = Array.isArray(json.audit) ? json.audit : [];
-    document.getElementById('connStatusLabel').textContent = 'Conectado · ' + (json.updatedAt || '');
-    document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+    const shortTime = String(json.updatedAt || '').split(' ')[1] || 'online';
+    document.getElementById('connStatusLabel').textContent = `Ativo · ${shortTime}`;
+    document.getElementById('connDot').className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
     renderAll();
-    showToast('Dados atualizados do Google!');
+    if (!silent) showToast('Sincronizado com o Google!');
   } catch (err) {
     document.getElementById('connStatusLabel').textContent = 'Erro de conexão';
-    document.getElementById('connDot').className = 'w-2 h-2 rounded-full bg-red-500';
+    document.getElementById('connDot').className = 'w-1.5 h-1.5 rounded-full bg-red-500';
     showToast('Erro: ' + err.message);
+    if (/pin/i.test(err.message)) openConnectModal();
+  } finally {
+    if (sIcon) sIcon.classList.remove('animate-spin');
   }
 }
 
-async function pushToGoogle(payload) {
+async function pushToGoogle(payload, lockKey) {
+  if (!STATE.apiPin) { openConnectModal(); return; }
+  if (lockKey && STATE.busyIds.has(lockKey)) return;
+  if (lockKey) STATE.busyIds.add(lockKey);
+  STATE.pendingWrites++;
+  document.getElementById('connStatusLabel').textContent = 'Salvando...';
   try {
     const res = await fetch(STATE.apiUrl, {
       method: 'POST',
@@ -692,10 +1273,18 @@ async function pushToGoogle(payload) {
       body: JSON.stringify({ ...payload, pin: STATE.apiPin })
     });
     const json = await res.json();
-    if (!json.ok) showToast('Erro ao salvar: ' + (json.error || ''));
-    else syncFromGoogle();
+    if (!json.ok) {
+      showToast('Erro ao salvar: ' + (json.error || ''));
+      await syncFromGoogle(true);
+    } else if (STATE.pendingWrites === 1) {
+      await syncFromGoogle(true);
+    }
   } catch (err) {
-    showToast('Falha ao salvar no Google: ' + err.message);
+    showToast('Falha ao salvar: ' + err.message);
+    await syncFromGoogle(true);
+  } finally {
+    STATE.pendingWrites = Math.max(0, STATE.pendingWrites - 1);
+    if (lockKey) STATE.busyIds.delete(lockKey);
   }
 }
 
@@ -704,24 +1293,34 @@ function showToast(msg) {
   el.textContent = msg;
   el.classList.remove('hidden');
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
+  window._toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
 }
 
 function celebrate() {
-  if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
+  if (typeof confetti === 'function') confetti({ particleCount: 60, spread: 65, origin: { y: 0.72 } });
 }
 
 function addDaysUtil(baseIso, days) {
-  const startIso = (baseIso && baseIso > TODAY) ? baseIso : TODAY;
+  const today = getTodayISO();
+  const startIso = (baseIso && baseIso > today) ? baseIso : today;
   const [y, m, d] = startIso.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setDate(dt.getDate() + days);
-  if (dt.getDay() === 6) dt.setDate(dt.getDate() + 2);
-  if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
+  const dt = new Date(y, m - 1, d, 12, 0, 0);
+  let added = 0;
+  const target = Math.max(1, Number(days) || 1);
+  while (added < target) {
+    dt.setDate(dt.getDate() + 1);
+    const dow = dt.getDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
   return localISO(dt);
 }
 
-function isLate(iso, done) { return !done && Boolean(iso) && iso < TODAY; }
+function daysBetween(isoA, isoB) {
+  if (!isoA || !isoB) return 0;
+  return Math.round((new Date(isoB + 'T12:00:00') - new Date(isoA + 'T12:00:00')) / 86400000);
+}
+
+function isLate(iso, done) { return !done && Boolean(iso) && iso < getTodayISO(); }
 function fmtDateBR(iso) { if (!iso) return '—'; const p = String(iso).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}` : iso; }
 function fmtMoney(v) { return 'R$ ' + Number(v || 0).toLocaleString('pt-BR'); }
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -729,85 +1328,190 @@ function renderIcons() { if (window.lucide && typeof window.lucide.createIcons =
 
 function renderTabs() {
   document.querySelectorAll('.nav-tab').forEach(btn => {
-    const active = btn.dataset.tab === STATE.activeTab;
-    btn.className = active
-      ? 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition'
-      : 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 cursor-pointer inline-flex items-center gap-1.5 transition';
+    btn.setAttribute('data-active', btn.dataset.tab === STATE.activeTab ? 'true' : 'false');
   });
-  ['agenda', 'tarefas', 'followups', 'crm'].forEach(t => {
+  ['agenda', 'tarefas', 'crm'].forEach(t => {
     document.getElementById('tab-' + t).classList.toggle('hidden', STATE.activeTab !== t);
   });
-  document.getElementById('btnPrimaryLabel').textContent = STATE.activeTab === 'crm' ? 'Novo Lead' : 'Novo';
+  const labelMap = { agenda: 'Agendar', tarefas: 'Nova Demanda', crm: 'Novo Lead' };
+  document.getElementById('btnPrimaryLabel').textContent = labelMap[STATE.activeTab] || 'Novo';
+  requestAnimationFrame(updateNavPill);
 }
 
+/* AGENDA COM AGULHA AO VIVO DA HORA ATUAL */
 function renderCalendar() {
   const box = document.getElementById('calendarContainer');
-  document.getElementById('calBtnDia').className = STATE.calMode === 'dia'
-    ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs cursor-pointer'
-    : 'px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer';
-  document.getElementById('calBtnSemana').className = STATE.calMode === 'semana'
-    ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs cursor-pointer'
-    : 'px-3 py-1 rounded-lg text-slate-500 hover:text-slate-900 cursor-pointer';
+  const today = getTodayISO();
+  const now = new Date();
+  const nowHour = now.getHours();
+  const nowMinPct = Math.min(100, Math.max(0, (now.getMinutes() / 60) * 100));
+  const weekDays = buildWeekDays(STATE.weekOffset);
 
-  const todayObj = DAYS.find(d => d.iso === TODAY) || DAYS[0];
-  const visibleDays = STATE.calMode === 'dia' ? [todayObj] : DAYS;
-  const colsClass = STATE.calMode === 'dia' ? 'grid-cols-[58px_1fr]' : 'grid-cols-[58px_repeat(5,minmax(125px,1fr))]';
+  const rangeTitle = STATE.weekOffset === 0
+    ? 'Semana Atual'
+    : (STATE.weekOffset < 0 ? 'Semana Passada' : `Próxima Semana (+${STATE.weekOffset})`);
+  document.getElementById('calRangeTitle').textContent = `${rangeTitle} · ${weekDays[0].dateStr} a ${weekDays[4].dateStr}`;
 
-  let html = `<div class="border border-slate-200 rounded-xl overflow-hidden text-xs">`;
-  html += `<div class="grid ${colsClass} bg-slate-50 border-b border-slate-200 font-semibold text-slate-600">
-    <div class="p-2 text-center border-r border-slate-200">Hora</div>
-    ${visibleDays.map(d => `<div class="p-2 text-center border-r last:border-r-0 border-slate-200 ${d.iso === TODAY ? 'text-slate-900 bg-emerald-50/70 font-bold' : ''}">${d.label}</div>`).join('')}
+  const activeSeg = 'px-3 py-1 rounded-lg surf-1 tx-1 shadow-sm cursor-pointer transition';
+  const idleSeg = 'px-3 py-1 rounded-lg tx-2 hover:opacity-80 cursor-pointer transition';
+  document.getElementById('calBtnDia').className = STATE.calMode === 'dia' ? activeSeg : idleSeg;
+  document.getElementById('calBtnSemana').className = STATE.calMode === 'semana' ? activeSeg : idleSeg;
+
+  const dayObj = STATE.weekOffset === 0 ? getTodayDayObj() : weekDays[0];
+  const visibleDays = STATE.calMode === 'dia' ? [dayObj] : weekDays;
+  const colsClass = STATE.calMode === 'dia' ? 'grid-cols-[58px_1fr]' : 'grid-cols-[58px_repeat(5,minmax(130px,1fr))]';
+
+  const hasAnyAllDay = visibleDays.some(d => STATE.events.some(e => e.allDay && e.date === d.iso));
+
+  let html = `<div class="rounded-xl overflow-hidden text-xs border bd-sub">`;
+  html += `<div class="grid ${colsClass} surf-2 border-b bd-sub">
+    <div class="p-2.5 text-center font-num text-[10px] font-semibold tx-3 border-r bd-sub">HORA</div>
+    ${visibleDays.map(d => {
+      const isToday = d.iso === today;
+      return `<div class="p-2 text-center border-r last:border-r-0 bd-sub ${isToday ? 'tx-1 font-bold' : 'tx-2'}" style="${isToday ? 'background: var(--today-col);' : ''}">
+        <span class="uppercase text-[10px] tracking-wider ${isToday ? 'text-emerald-500 font-extrabold' : 'tx-3'}">${d.name}</span>
+        <span class="font-num ml-1 text-xs">${d.dateStr}</span>
+      </div>`;
+    }).join('')}
   </div>`;
 
-  HOURS.forEach(hr => {
-    const label = String(hr).padStart(2, '0') + ':00';
-    html += `<div class="grid ${colsClass} border-b last:border-b-0 border-slate-100">
-      <div class="p-2 text-center font-medium text-slate-400 bg-slate-50/50 border-r border-slate-200">${label}</div>`;
+  if (hasAnyAllDay) {
+    html += `<div class="grid ${colsClass} border-b bd-sub" style="background: var(--bg-feriado);">
+      <div class="p-1.5 text-center font-num text-[10px] font-bold border-r bd-sub" style="color: var(--tx-feriado);">DIA</div>`;
     visibleDays.forEach(day => {
-      const evs = STATE.events.filter(e => e.date === day.iso && Number(e.hour) === hr);
-      if (evs.length) {
-        html += `<div class="p-1 border-r last:border-r-0 border-slate-100 space-y-1">
-          ${evs.map(ev => `
-            <div class="cal-${ev.front || 'Particular'} rounded-lg px-2 py-1.5 transition hover:brightness-95">
-              <div class="font-semibold text-slate-900 leading-tight">${esc(ev.title)}</div>
-              ${evs.length > 1 ? '<div class="text-[10px] font-bold text-red-600 mt-0.5">Conflito de horário</div>' : ''}
-            </div>
-          `).join('')}
+      const ad = STATE.events.filter(e => e.allDay && e.date === day.iso);
+      html += `<div class="p-1 border-r last:border-r-0 bd-sub space-y-1">
+        ${ad.map(ev => `<div class="cal-${ev.front} rounded-md px-2 py-1 text-[11px] font-semibold tx-1 truncate">${esc(ev.title)}</div>`).join('')}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  HOURS.forEach(hr => {
+    const slotStart = hr * 60;
+    const slotEnd = (hr + 1) * 60;
+    const label = String(hr).padStart(2, '0') + ':00';
+
+    html += `<div class="grid ${colsClass} border-b last:border-b-0" style="border-color: var(--grid-line);">
+      <div class="p-2 text-center font-num text-[11px] tx-3 border-r bd-sub flex items-start justify-center pt-2.5">${label}</div>`;
+
+    visibleDays.forEach(day => {
+      const isToday = day.iso === today;
+      const showNeedle = isToday && nowHour === hr;
+      const needleHtml = showNeedle ? `<div class="time-needle" style="top:${nowMinPct}%" title="Agora: ${fmtMin(nowHour * 60 + now.getMinutes())}"></div>` : '';
+      const dayTimed = STATE.events.filter(e => !e.allDay && e.date === day.iso);
+      const covering = dayTimed.filter(e => e.startMin < slotEnd && e.endMin > slotStart);
+
+      if (covering.length) {
+        html += `<div data-drop-kind="event" data-drop-date="${day.iso}" data-drop-hour="${hr}" class="cal-drop-cell relative p-1 border-r last:border-r-0 bd-sub space-y-1 min-h-[46px] transition" style="${isToday ? 'background: var(--today-col);' : ''}">
+          ${needleHtml}
+          ${covering.map(ev => {
+            const idx = STATE.events.indexOf(ev);
+            const isStartSlot = ev.startMin >= slotStart && ev.startMin < slotEnd;
+            const hasRealConflict = covering.some(other => other !== ev && eventsOverlap(ev, other));
+            const canDrag = !ev.allDay && !ev.readonly;
+            return `
+              <button type="button" ${canDrag ? `draggable="true" data-drag-kind="event" data-drag-idx="${idx}"` : ''} data-open-event="${idx}" class="w-full text-left cal-${ev.front || 'Particular'} rounded-lg px-2.5 py-1.5 transition hover:scale-[1.01] ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${isStartSlot ? '' : 'opacity-70'}">
+                <div class="font-semibold tx-1 leading-tight truncate">${isStartSlot ? esc(ev.title) : '↳ ' + esc(ev.title)}</div>
+                <div class="font-num text-[10px] tx-2 mt-0.5">${fmtMin(ev.startMin)}–${fmtMin(ev.endMin)}</div>
+                ${hasRealConflict ? '<div class="text-[10px] font-bold text-red-500 mt-0.5">⚡ Conflito</div>' : ''}
+              </button>
+            `;
+          }).join('')}
         </div>`;
       } else {
-        html += `<div class="p-1 border-r last:border-r-0 border-slate-100">
-          <button data-slot-date="${day.iso}" data-slot-label="${day.label}" data-slot-hour="${hr}" class="w-full h-full min-h-[34px] rounded-lg hover:bg-emerald-50 text-[11px] font-medium text-transparent hover:text-emerald-700 transition cursor-pointer flex items-center justify-center">+ Agendar</button>
+        html += `<div data-drop-kind="event" data-drop-date="${day.iso}" data-drop-hour="${hr}" class="cal-drop-cell relative p-1 border-r last:border-r-0 bd-sub min-h-[46px] transition" style="${isToday ? 'background: var(--today-col);' : ''}">
+          ${needleHtml}
+          <button data-slot-date="${day.iso}" data-slot-hour="${hr}" class="group w-full h-full min-h-[38px] rounded-lg hover:bg-emerald-500/10 text-[11px] font-semibold text-transparent hover:text-emerald-500 transition cursor-pointer flex items-center justify-center">
+            <span class="font-num">+ ${label}</span>
+          </button>
         </div>`;
       }
     });
     html += `</div>`;
   });
+
   html += `</div>`;
   box.innerHTML = html;
+  bindCalendarDrag();
+}
+
+function getDueFollowups() {
+  const today = getTodayISO();
+  const taskFollows = STATE.cards
+    .filter(c => c.stage !== 'done' && (c.type === 'Follow-up' || c.stage === 'waiting' || (c.assignee && c.assignee !== 'Comigo')))
+    .map(c => ({
+      kind: 'task', id: c.id, title: c.title, front: c.front,
+      date: c.due || today, cobrancas: c.cobrancas || 0,
+      assignee: c.assignee || 'Comigo', contact: c.contact || '',
+      tag: c.assignee && c.assignee !== 'Comigo' ? `Solic. ${c.assignee}` : 'Operacional'
+    }));
+
+  const crmFollows = STATE.leads
+    .filter(l => l.stage !== 'fechado' && l.stage !== 'perdido' && (l.stage === 'proposta' || (l.nextDate && l.nextDate <= today)))
+    .map(l => ({
+      kind: 'crm', id: l.id, title: `${l.stage === 'proposta' ? 'Proposta' : 'Lead'}: ${l.name}`, front: l.front,
+      date: l.nextDate || today, cobrancas: l.cobrancas || 0,
+      assignee: 'Cliente', contact: l.contact || '',
+      tag: `CRM · ${l.temp}`
+    }));
+
+  const all = [...taskFollows, ...crmFollows]
+    .filter(item => matchesSearch([item.title, item.front, item.assignee, item.contact, item.tag]))
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+  const filtered = STATE.assigneeFilter === 'ALL'
+    ? all
+    : all.filter(item => item.assignee === STATE.assigneeFilter);
+
+  return {
+    totalDueCount: all.filter(item => !item.date || item.date <= today).length,
+    dueNow: filtered.filter(item => !item.date || item.date <= today),
+    future: filtered.filter(item => item.date && item.date > today)
+  };
 }
 
 function renderTop3() {
-  const active = STATE.cards.filter(c => c.stage !== 'done');
-  const lateCount = active.filter(c => isLate(c.due, false)).length;
+  const today = getTodayISO();
+  const actionable = STATE.cards.filter(c => c.stage !== 'done' && c.stage !== 'waiting' && (!c.assignee || c.assignee === 'Comigo'));
+  const lateCount = STATE.cards.filter(c => isLate(c.due, c.stage === 'done')).length;
   const latePill = document.getElementById('lateCountPill');
-  if (lateCount > 0) { latePill.textContent = `${lateCount} atrasada(s)`; latePill.classList.remove('hidden'); }
-  else latePill.classList.add('hidden');
+  if (lateCount > 0) {
+    latePill.textContent = `${lateCount} atrasada(s)`;
+    latePill.classList.remove('hidden');
+  } else {
+    latePill.classList.add('hidden');
+  }
 
-  const top3 = active.sort((a, b) => String(a.priority).localeCompare(String(b.priority)) || String(a.due).localeCompare(String(b.due))).slice(0, 3);
+  const urgencyBucket = (c) => (c.due && c.due < today ? 0 : (c.due === today ? 1 : 2));
+  const top3 = actionable
+    .sort((a, b) => urgencyBucket(a) - urgencyBucket(b) || String(a.priority).localeCompare(String(b.priority)) || String(a.due || '9999').localeCompare(String(b.due || '9999')))
+    .slice(0, 3);
+
   document.getElementById('prioHojeList').innerHTML = top3.length
     ? top3.map((c, i) => {
       const late = isLate(c.due, false);
       return `
-        <div data-open="${c.id}" class="bg-white card-${c.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200'} rounded-xl p-2.5 cursor-pointer">
+        <div style="--i:${i}" data-open="${c.id}" class="cascade-item k-card card-${c.front} ${late ? 'is-late' : ''} cursor-pointer">
           <div class="flex items-center justify-between gap-2 mb-1">
             <span class="badge-${c.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[c.front] || FRONTS.Particular).label}</span>
-            <span class="text-[11px] font-semibold ${late ? 'text-red-600' : 'text-slate-500'}">${late ? 'Atrasada · ' : ''}${fmtDateBR(c.due)}</span>
+            <span class="font-num text-[11px] font-semibold ${late ? 'text-red-500' : 'tx-3'}">${late ? 'Atrasada · ' : ''}${fmtDateBR(c.due)}</span>
           </div>
-          <div class="text-xs font-semibold text-slate-900 leading-snug">${i + 1}. ${esc(c.title)}</div>
+          <div class="text-xs font-semibold tx-1 leading-snug">${i + 1}. ${esc(c.title)}</div>
         </div>
       `;
     }).join('')
-    : '<p class="text-xs text-slate-400">Nenhuma pendência!</p>';
+    : '<p class="text-xs tx-3 py-2">Nenhuma execução pendente na sua mão!</p>';
+
+  const { totalDueCount } = getDueFollowups();
+  const hint = document.getElementById('agendaFollowupHint');
+  if (totalDueCount > 0) {
+    hint.className = 'rounded-xl p-2.5 flex items-center justify-between gap-2 cursor-pointer bg-amber-500/12 border border-amber-500/25 transition hover:scale-[1.01]';
+    hint.setAttribute('data-jump-followups', '1');
+    hint.innerHTML = `<span class="text-xs font-semibold text-amber-600">🔔 ${totalDueCount} cobrança(s) hoje</span><span class="text-[11px] font-bold text-amber-600">Cobrar &rarr;</span>`;
+  } else {
+    hint.className = 'hidden';
+  }
 }
 
 function renderFilters() {
@@ -816,7 +1520,7 @@ function renderFilters() {
     const active = STATE.frontFilter === k;
     const label = k === 'ALL' ? 'Todas' : FRONTS[k].label;
     const dot = k === 'ALL' ? '' : `<span class="w-2 h-2 rounded-full dot-${k}"></span>`;
-    return `<button data-filter="${k}" class="btn-press inline-flex items-center gap-1.5 px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${dot}${label}</button>`;
+    return `<button data-filter="${k}" data-active="${active}" class="chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold cursor-pointer">${dot}${label}</button>`;
   }).join('');
 
   const crmKeys = ['ALL', 'Otimize', 'SR', 'Sette', 'Reforma'];
@@ -824,153 +1528,299 @@ function renderFilters() {
     const active = STATE.crmFilter === k;
     const label = k === 'ALL' ? 'Todas frentes' : FRONTS[k].label;
     const dot = k === 'ALL' ? '' : `<span class="w-2 h-2 rounded-full dot-${k}"></span>`;
-    return `<button data-crm-filter="${k}" class="btn-press inline-flex items-center gap-1.5 px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${dot}${label}</button>`;
+    return `<button data-crm-filter="${k}" data-active="${active}" class="chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold cursor-pointer">${dot}${label}</button>`;
   }).join('');
 
   const temps = ['ALL', 'Quente', 'Morno', 'Frio'];
   document.getElementById('crmTempFilters').innerHTML = temps.map(t => {
     const active = STATE.crmTempFilter === t;
-    return `<button data-temp-filter="${t}" class="btn-press px-3 py-1 rounded-full border font-semibold cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'}">${t === 'ALL' ? 'Todas temp.' : t}</button>`;
+    return `<button data-temp-filter="${t}" data-active="${active}" class="chip px-3 py-1 rounded-full font-semibold cursor-pointer">${t === 'ALL' ? 'Todas temp.' : t}</button>`;
+  }).join('');
+
+  const openCards = STATE.cards.filter(c => c.stage !== 'done');
+  const peopleKeys = ['ALL', ...ASSIGNEES.map(a => a.id)];
+  document.getElementById('assigneeFilters').innerHTML = peopleKeys.map(p => {
+    const active = STATE.assigneeFilter === p;
+    const count = p === 'ALL' ? openCards.length : openCards.filter(c => (c.assignee || 'Comigo') === p).length;
+    const label = p === 'ALL' ? 'Todos' : assigneeLabel(p);
+    return `<button data-assignee-filter="${p}" data-active="${active}" class="chip px-2.5 py-1 rounded-full font-semibold cursor-pointer inline-flex items-center gap-1.5">
+      <span>${label}</span>
+      ${count > 0 ? `<span class="font-num text-[10px] opacity-70">${count}</span>` : ''}
+    </button>`;
   }).join('');
 }
 
-function renderBoard() {
-  const total = STATE.cards.length;
-  const doneCount = STATE.cards.filter(c => c.stage === 'done').length;
-  const pct = total ? Math.round((doneCount / total) * 100) : 0;
-  document.getElementById('taskProgressBar').style.width = pct + '%';
-  document.getElementById('taskProgressText').textContent = `${pct}% (${doneCount}/${total})`;
+function renderTasksSection() {
+  const today = getTodayISO();
+  const { totalDueCount, dueNow, future } = getDueFollowups();
 
+  // Badges de cobrança no topo e no seletor interno
+  const navBadge = document.getElementById('navFollowBadge');
+  navBadge.textContent = totalDueCount;
+  navBadge.classList.toggle('hidden', totalDueCount === 0);
+  document.getElementById('taskFollowChip').textContent = totalDueCount;
+
+  // Toggle visual Quadro vs Cobrar Hoje
+  const activeSub = 'px-3 py-1.5 rounded-lg surf-1 tx-1 shadow-sm cursor-pointer transition inline-flex items-center gap-1.5';
+  const idleSub = 'px-3 py-1.5 rounded-lg tx-2 hover:opacity-80 cursor-pointer transition inline-flex items-center gap-1.5';
+  document.getElementById('btnViewKanban').className = STATE.taskSubMode === 'kanban' ? activeSub : idleSub;
+  document.getElementById('btnViewFollowups').className = STATE.taskSubMode === 'followups' ? activeSub : idleSub;
+
+  document.getElementById('trelloBoard').classList.toggle('hidden', STATE.taskSubMode !== 'kanban');
+  document.getElementById('integratedFollowupBox').classList.toggle('hidden', STATE.taskSubMode !== 'followups');
+
+  // Progresso da Semana
+  const isRecentDone = (c) => c.stage === 'done' && (!c.due || daysBetween(c.due, today) <= 7);
+  const openCount = STATE.cards.filter(c => c.stage !== 'done').length;
+  const recentDoneCount = STATE.cards.filter(isRecentDone).length;
+  const denom = openCount + recentDoneCount;
+  const pct = denom ? Math.round((recentDoneCount / denom) * 100) : 0;
+  document.getElementById('taskProgressBar').style.width = pct + '%';
+  document.getElementById('taskProgressText').textContent = `${pct}%`;
+
+  // Render Kanban
   document.getElementById('trelloBoard').innerHTML = STAGES.map(st => {
-    const list = STATE.cards
-      .filter(c => c.stage === st.id && (STATE.frontFilter === 'ALL' || c.front === STATE.frontFilter))
+    let list = STATE.cards
+      .filter(c =>
+        c.stage === st.id &&
+        (STATE.frontFilter === 'ALL' || c.front === STATE.frontFilter) &&
+        (STATE.assigneeFilter === 'ALL' || (c.assignee || 'Comigo') === STATE.assigneeFilter) &&
+        matchesSearch([c.title, c.front, c.type, c.assignee, c.contact, c.notes])
+      )
       .sort((a, b) => String(a.priority).localeCompare(String(b.priority)) || String(a.due).localeCompare(String(b.due)));
 
+    let hiddenOldCount = 0;
+    if (st.id === 'done' && !STATE.showOldDone) {
+      const visible = list.filter(c => !c.due || daysBetween(c.due, today) <= 7);
+      hiddenOldCount = list.length - visible.length;
+      list = visible;
+    }
+
     return `
-      <div data-drop-kind="task" data-drop-stage="${st.id}" class="drop-col bg-slate-200/55 border border-slate-200/90 rounded-2xl p-3 min-h-[360px]">
+      <div data-drop-kind="task" data-drop-stage="${st.id}" class="drop-col p-3 min-h-[380px]">
         <div class="flex items-center justify-between mb-3 px-1">
-          <h3 class="text-xs font-bold text-slate-700">${st.title}</h3>
-          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-2xs">${list.length}</span>
+          <h3 class="text-xs font-bold tx-2 tracking-tight">${st.title}</h3>
+          <span class="font-num text-[11px] font-bold px-2 py-0.5 rounded-full surf-1 tx-2">${list.length}</span>
         </div>
         <div class="space-y-2.5">
-          ${list.length ? list.map(c => {
+          ${list.length ? list.map((c, idx) => {
             const late = isLate(c.due, c.stage === 'done');
             const cms = Array.isArray(c.comments) ? c.comments : [];
+            const isP1 = String(c.priority) === '1';
+            const resp = c.assignee || 'Comigo';
             return `
-              <article draggable="true" data-drag-kind="task" data-drag-id="${c.id}" class="bg-white card-${c.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200/90'} rounded-xl p-3 shadow-2xs cursor-grab active:cursor-grabbing">
+              <article style="--i:${idx}" draggable="true" data-drag-kind="task" data-drag-id="${c.id}" class="cascade-item k-card card-${c.front} ${late ? 'is-late' : ''} cursor-grab active:cursor-grabbing">
                 <div data-open="${c.id}" class="cursor-pointer">
                   <div class="flex items-center justify-between gap-2 mb-1.5">
-                    <span class="badge-${c.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[c.front] || FRONTS.Particular).label}</span>
-                    <span class="text-[11px] font-semibold inline-flex items-center gap-1 ${late ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md' : 'text-slate-500'}">
-                      ${late ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-late"></span>' : ''}${fmtDateBR(c.due)}
+                    <div class="flex items-center gap-1 flex-wrap">
+                      <span class="badge-${c.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[c.front] || FRONTS.Particular).label}</span>
+                      ${isP1 && c.stage !== 'done' ? '<span class="font-num text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-500">P1</span>' : ''}
+                      ${resp !== 'Comigo' ? `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full surf-2 tx-2">${esc(assigneeLabel(resp))}</span>` : ''}
+                    </div>
+                    <span class="font-num text-[11px] font-semibold inline-flex items-center gap-1 shrink-0 ${late ? 'text-red-500' : 'tx-3'}">
+                      ${late ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-dot"></span>' : ''}${fmtDateBR(c.due)}
                     </span>
                   </div>
-                  <div class="text-sm font-semibold text-slate-900 leading-snug mb-2">${esc(c.title)}</div>
-                  <div class="flex items-center gap-2.5 text-[11px] text-slate-400">
+                  <div class="text-[13px] font-semibold tx-1 leading-snug">${esc(c.title)}</div>
+                  <div class="flex items-center gap-2.5 text-[11px] tx-3 mt-1.5">
                     <span>${esc(c.type)}</span>
-                    ${cms.length ? `<span>💬 ${cms.length}</span>` : ''}
+                    ${c.cobrancas ? `<span class="font-num">· ${c.cobrancas}x</span>` : ''}
+                    ${cms.length ? `<span class="font-num">· 💬 ${cms.length}</span>` : ''}
                   </div>
                 </div>
                 ${c.stage !== 'done' ? `
-                  <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <button data-cobrei="${c.id}" class="btn-press px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-semibold cursor-pointer">Cobrei (+2d) · ${c.cobrancas || 0}x</button>
-                    <button data-open="${c.id}" class="text-[11px] font-semibold text-slate-400 hover:text-slate-800 cursor-pointer">Abrir</button>
+                  <div class="card-drawer flex items-center justify-between gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <button data-cobrei="${c.id}" class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 text-[11px] font-semibold cursor-pointer transition">Cobrei +2d</button>
+                      <button data-wa-task="${c.id}" class="px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 text-[11px] font-semibold cursor-pointer transition">WhatsApp</button>
+                    </div>
+                    <button data-block-task="${c.id}" title="Bloquear 1h na Agenda" class="px-2 py-1 rounded-lg hover:bg-blue-500/15 text-blue-500 text-[11px] font-semibold cursor-pointer transition">📅 1h</button>
                   </div>
                 ` : ''}
               </article>
             `;
-          }).join('') : '<div class="text-xs text-slate-400 text-center py-10 border border-dashed border-slate-300 rounded-xl">Arraste um cartão para cá</div>'}
+          }).join('') : '<div class="text-xs tx-3 text-center py-12 border border-dashed bd-sub rounded-xl">Solte um cartão aqui</div>'}
+          ${hiddenOldCount > 0 ? `<button id="btnShowOldDone" class="w-full py-1.5 text-[11px] font-semibold tx-3 hover:opacity-80 cursor-pointer">+ Mostrar ${hiddenOldCount} concluído(s) antigo(s)</button>` : ''}
         </div>
       </div>
     `;
   }).join('');
+
+  // Render Fila Integrada de Cobrança
+  const renderRow = (item, idx) => {
+    const late = isLate(item.date, false);
+    return `
+      <div style="--i:${idx}" class="cascade-item fup-row py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div ${item.kind === 'crm' ? `data-open-lead="${item.id}"` : `data-open="${item.id}"`} class="cursor-pointer min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="badge-${item.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[item.front] || FRONTS.Particular).label}</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full surf-2 tx-2">${esc(item.tag)}</span>
+            <span class="font-num text-xs ${late ? 'text-red-500 font-bold' : 'tx-3'}">${late ? 'Vencido ' : ''}${fmtDateBR(item.date)}</span>
+          </div>
+          <div class="text-sm font-semibold tx-1">${esc(item.title)}</div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button ${item.kind === 'crm' ? `data-wa-lead="${item.id}"` : `data-wa-task="${item.id}"`} class="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 text-xs font-semibold cursor-pointer transition">WhatsApp</button>
+          <button ${item.kind === 'crm' ? `data-cobrei-lead="${item.id}"` : `data-cobrei="${item.id}"`} class="font-num px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 text-xs font-semibold cursor-pointer transition">Cobrei (+2d) · ${item.cobrancas}x</button>
+        </div>
+      </div>
+    `;
+  };
+
+  document.getElementById('followupCountBadge').textContent = `${dueNow.length} para cobrar`;
+  document.getElementById('followupFutureBadge').textContent = future.length;
+  document.getElementById('followupsDueList').innerHTML = dueNow.length
+    ? dueNow.map(renderRow).join('')
+    : '<p class="text-sm text-emerald-500 font-semibold py-5">✓ Fila zerada! Todas as cobranças de hoje estão em dia.</p>';
+  document.getElementById('followupsFutureList').innerHTML = future.length
+    ? future.map(renderRow).join('')
+    : '<p class="text-xs tx-3 py-3">Nenhum follow-up futuro agendado.</p>';
 }
 
 function renderCRM() {
   const activeLeads = STATE.leads.filter(l => l.stage !== 'fechado' && l.stage !== 'perdido');
+  const closedLeads = STATE.leads.filter(l => l.stage === 'fechado');
+  const lostLeads = STATE.leads.filter(l => l.stage === 'perdido');
+
   document.getElementById('crmKpiAtivos').textContent = activeLeads.length;
   document.getElementById('crmKpiQuentes').textContent = activeLeads.filter(l => l.temp === 'Quente').length;
   document.getElementById('crmKpiMensal').textContent = fmtMoney(activeLeads.filter(l => l.unit === '/mês').reduce((s, l) => s + Number(l.value || 0), 0)) + '/mês';
   document.getElementById('crmKpiProjetos').textContent = fmtMoney(activeLeads.filter(l => l.unit !== '/mês').reduce((s, l) => s + Number(l.value || 0), 0));
+  document.getElementById('crmKpiFechados').textContent = closedLeads.length;
+
+  const lostBtn = document.getElementById('toggleLostLeads');
+  lostBtn.textContent = `Perdidos (${lostLeads.length})`;
+  lostBtn.setAttribute('data-active', STATE.showLostLeads ? 'true' : 'false');
+
+  document.getElementById('lostLeadsPanel').classList.toggle('hidden', !STATE.showLostLeads);
+  document.getElementById('lostLeadsList').innerHTML = lostLeads.length
+    ? lostLeads.map(l => `
+      <div data-open-lead="${l.id}" class="p-2.5 rounded-xl border bd-sub hover:opacity-85 cursor-pointer flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-xs font-semibold tx-1 truncate">${esc(l.name)}</div>
+          <div class="font-num text-[11px] tx-3">${esc(l.front)} · ${fmtMoney(l.value)}${esc(l.unit || '')}</div>
+        </div>
+        <span class="text-[11px] font-semibold tx-2">Reabrir</span>
+      </div>
+    `).join('')
+    : '<p class="text-xs tx-3">Nenhum lead arquivado.</p>';
 
   const tempOrder = { Quente: 1, Morno: 2, Frio: 3 };
   document.getElementById('crmBoard').innerHTML = CRM_STAGES.map(st => {
     const list = STATE.leads
-      .filter(l => l.stage === st.id && (STATE.crmFilter === 'ALL' || l.front === STATE.crmFilter) && (STATE.crmTempFilter === 'ALL' || l.temp === STATE.crmTempFilter))
+      .filter(l =>
+        l.stage === st.id &&
+        (STATE.crmFilter === 'ALL' || l.front === STATE.crmFilter) &&
+        (STATE.crmTempFilter === 'ALL' || l.temp === STATE.crmTempFilter) &&
+        matchesSearch([l.name, l.contact, l.origin, l.front, l.nextStep])
+      )
       .sort((a, b) => (tempOrder[a.temp] || 9) - (tempOrder[b.temp] || 9) || String(a.nextDate).localeCompare(String(b.nextDate)));
 
     return `
-      <div data-drop-kind="crm" data-drop-stage="${st.id}" class="drop-col bg-slate-200/55 border border-slate-200/90 rounded-2xl p-3 min-h-[360px]">
+      <div data-drop-kind="crm" data-drop-stage="${st.id}" class="drop-col p-3 min-h-[380px]">
         <div class="flex items-center justify-between mb-3 px-1">
-          <h3 class="text-xs font-bold text-slate-700">${st.title}</h3>
-          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-2xs">${list.length}</span>
+          <h3 class="text-xs font-bold tx-2 tracking-tight">${st.title}</h3>
+          <span class="font-num text-[11px] font-bold px-2 py-0.5 rounded-full surf-1 tx-2">${list.length}</span>
         </div>
         <div class="space-y-2.5">
-          ${list.length ? list.map(l => {
+          ${list.length ? list.map((l, idx) => {
             const late = isLate(l.nextDate, l.stage === 'fechado');
             const cms = Array.isArray(l.comments) ? l.comments : [];
+            const alreadyOnboarded = STATE.cards.some(c => c.title.includes(l.name) && /onboarding/i.test(c.title));
             return `
-              <article draggable="true" data-drag-kind="crm" data-drag-id="${l.id}" class="bg-white card-${l.front} card-lift border ${late ? 'border-red-200' : 'border-slate-200/90'} rounded-xl p-3 shadow-2xs cursor-grab active:cursor-grabbing">
+              <article style="--i:${idx}" draggable="true" data-drag-kind="crm" data-drag-id="${l.id}" class="cascade-item k-card card-${l.front} ${late ? 'is-late' : ''} cursor-grab active:cursor-grabbing">
                 <div data-open-lead="${l.id}" class="cursor-pointer">
                   <div class="flex items-center justify-between gap-1.5 mb-1.5">
                     <div class="flex items-center gap-1">
                       <span class="badge-${l.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[l.front] || FRONTS.Otimize).label}</span>
                       <span class="temp-${l.temp} text-[10px] font-bold px-2 py-0.5 rounded-full">${esc(l.temp)}</span>
                     </div>
-                    <span class="text-xs font-bold text-emerald-700">${fmtMoney(l.value)}<span class="font-normal text-[10px] text-slate-500">${esc(l.unit || '')}</span></span>
+                    <span class="font-num text-xs font-bold text-emerald-500">${fmtMoney(l.value)}<span class="font-normal text-[10px] tx-3">${esc(l.unit || '')}</span></span>
                   </div>
-                  <div class="text-sm font-semibold text-slate-900 leading-snug">${esc(l.name)}</div>
-                  <div class="text-[11px] text-slate-500 mt-0.5">Origem: ${esc(l.origin)} · ${esc(l.contact)}</div>
-                  ${l.nextStep ? `<div class="text-[11px] text-slate-700 bg-slate-50 rounded-lg px-2 py-1 mt-1.5 border border-slate-100">Próx: ${esc(l.nextStep)}</div>` : ''}
-                  <div class="flex items-center gap-2.5 text-[11px] mt-2 ${late ? 'text-red-600 font-semibold' : 'text-slate-400'}">
-                    <span>${late ? 'Atrasado · ' : 'Retorno: '}${fmtDateBR(l.nextDate)}</span>
-                    ${cms.length ? `<span class="text-slate-400 font-normal">💬 ${cms.length}</span>` : ''}
+                  <div class="text-[13px] font-semibold tx-1 leading-snug">${esc(l.name)}</div>
+                  <div class="text-[11px] tx-2 mt-0.5">${esc(l.origin)} · ${esc(l.contact)}</div>
+                  ${l.nextStep ? `<div class="text-[11px] tx-2 surf-2 rounded-lg px-2 py-1 mt-2">Próx: ${esc(l.nextStep)}</div>` : ''}
+                  <div class="font-num flex items-center gap-2 text-[11px] mt-2 ${late ? 'text-red-500 font-semibold' : 'tx-3'}">
+                    <span>${late ? 'Atrasado · ' : 'Retorno '}${fmtDateBR(l.nextDate)}</span>
+                    ${l.cobrancas ? `<span>· ${l.cobrancas}x</span>` : ''}
+                    ${cms.length ? `<span>· 💬 ${cms.length}</span>` : ''}
                   </div>
                 </div>
-                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div class="card-drawer flex items-center justify-between gap-2">
                   ${l.stage === 'fechado'
-                    ? `<button data-onboard-lead="${l.id}" class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold cursor-pointer">+ Criar Onboarding</button>`
-                    : `<button data-cobrei-lead="${l.id}" class="btn-press px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-semibold cursor-pointer">Cobrei (+2d) · ${l.cobrancas || 0}x</button>`
+                    ? (alreadyOnboarded
+                        ? `<span class="text-[11px] font-semibold text-emerald-500">✓ Onboarding criado</span>`
+                        : `<button data-onboard-lead="${l.id}" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold cursor-pointer transition">+ Criar Onboarding</button>`)
+                    : `<div class="flex items-center gap-1">
+                        <button data-cobrei-lead="${l.id}" class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 text-[11px] font-semibold cursor-pointer transition">Cobrei +2d</button>
+                        <button data-wa-lead="${l.id}" class="px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 text-[11px] font-semibold cursor-pointer transition">WhatsApp</button>
+                      </div>`
                   }
-                  <button data-open-lead="${l.id}" class="text-[11px] font-semibold text-slate-400 hover:text-slate-800 cursor-pointer">Abrir</button>
+                  <button data-open-lead="${l.id}" class="text-[11px] font-semibold tx-3 hover:opacity-80 cursor-pointer">Detalhes</button>
                 </div>
               </article>
             `;
-          }).join('') : '<div class="text-xs text-slate-400 text-center py-10 border border-dashed border-slate-300 rounded-xl">Arraste um lead para cá</div>'}
+          }).join('') : '<div class="text-xs tx-3 text-center py-12 border border-dashed bd-sub rounded-xl">Solte um lead aqui</div>'}
         </div>
       </div>
     `;
   }).join('');
 }
 
-function renderFollowups() {
-  const taskFollows = STATE.cards
-    .filter(c => c.stage !== 'done' && (c.type === 'Follow-up' || c.stage === 'waiting'))
-    .map(c => ({ kind: 'task', id: c.id, title: c.title, front: c.front, date: c.due, cobrancas: c.cobrancas || 0, tag: 'Operacional' }));
-  const crmFollows = STATE.leads
-    .filter(l => l.stage === 'proposta')
-    .map(l => ({ kind: 'crm', id: l.id, title: `Proposta: ${l.name}`, front: l.front, date: l.nextDate, cobrancas: l.cobrancas || 0, tag: `CRM · ${l.temp}` }));
-  const list = [...taskFollows, ...crmFollows].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  document.getElementById('navFollowBadge').textContent = list.length;
-  document.getElementById('followupCountBadge').textContent = `${list.length} ativo(s)`;
-  document.getElementById('followupsList').innerHTML = list.length
-    ? list.map(item => {
-      const late = isLate(item.date, false);
-      return `
-        <div class="py-3.5 flex flex-wrap items-center justify-between gap-3">
-          <div ${item.kind === 'crm' ? `data-open-lead="${item.id}"` : `data-open="${item.id}"`} class="cursor-pointer min-w-0">
-            <div class="flex items-center gap-2 mb-0.5">
-              <span class="badge-${item.front} text-[10px] font-bold px-2 py-0.5 rounded-full">${(FRONTS[item.front] || FRONTS.Particular).label}</span>
-              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${esc(item.tag)}</span>
-              <span class="text-xs ${late ? 'text-red-600 font-bold' : 'text-slate-500'}">${late ? 'Vencido em ' : 'Próxima: '}${fmtDateBR(item.date)}</span>
-            </div>
-            <div class="text-sm font-semibold text-slate-900">${esc(item.title)}</div>
-          </div>
-          <button ${item.kind === 'crm' ? `data-cobrei-lead="${item.id}"` : `data-cobrei="${item.id}"`} class="btn-press px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold cursor-pointer shrink-0">Cobrei (+2d) · ${item.cobrancas}x</button>
-        </div>
-      `;
-    }).join('')
-    : '<p class="text-sm text-slate-400 py-4">Nenhum follow-up pendente.</p>';
+function bindCalendarDrag() {
+  document.querySelectorAll('[data-drag-idx]').forEach(el => {
+    el.addEventListener('dragstart', (e) => {
+      STATE.dragInfo = { kind: 'event', idx: Number(el.dataset.dragIdx) };
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', JSON.stringify(STATE.dragInfo));
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      STATE.dragInfo = null;
+      document.querySelectorAll('.cal-drop-cell').forEach(c => c.classList.remove('cal-drop-over'));
+    });
+  });
+
+  document.querySelectorAll('.cal-drop-cell').forEach(cell => {
+    cell.addEventListener('dragover', (e) => {
+      if (STATE.dragInfo && STATE.dragInfo.kind === 'event') {
+        e.preventDefault();
+        cell.classList.add('cal-drop-over');
+      }
+    });
+    cell.addEventListener('dragleave', () => cell.classList.remove('cal-drop-over'));
+    cell.addEventListener('drop', (e) => {
+      e.preventDefault();
+      cell.classList.remove('cal-drop-over');
+      let info = STATE.dragInfo;
+      if (!info) { try { info = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (_) {} }
+      if (!info || info.kind !== 'event') return;
+      const ev = STATE.events[info.idx];
+      if (!ev) return;
+      const newDate = cell.dataset.dropDate;
+      const newHour = Number(cell.dataset.dropHour);
+      const dur = Math.max(30, ev.endMin - ev.startMin);
+      const newStartMin = newHour * 60;
+      if (ev.date === newDate && ev.startMin === newStartMin) return;
+
+      ev.date = newDate;
+      ev.hour = newHour;
+      ev.startMin = newStartMin;
+      ev.endMin = newStartMin + dur;
+      renderCalendar();
+
+      if (ev.id && ev.calendarId) {
+        showToast(`Remarcado para ${fmtDateBR(newDate)} às ${fmtMin(newStartMin)}!`);
+        pushToGoogle({
+          action: 'move_event',
+          event: { id: ev.id, calendarId: ev.calendarId, date: newDate, startMin: newStartMin, durationMin: dur, front: ev.front, title: ev.title }
+        }, 'moveEv:' + ev.id);
+      } else {
+        showToast(`Movido na prévia (${fmtDateBR(newDate)} ${fmtMin(newStartMin)}). Atualize o Code.gs para salvar no Google Agenda!`);
+      }
+    });
+  });
 }
 
 function bindDragAndDrop() {
@@ -1005,20 +1855,16 @@ function bindDragAndDrop() {
         const card = STATE.cards.find(c => c.id === info.id);
         if (card && card.stage !== newStage) {
           card.stage = newStage;
-          card.comments = Array.isArray(card.comments) ? card.comments : [];
-          card.comments.push({ at: TODAY, text: `Movido para ${newStage}` });
           renderAll();
-          pushToGoogle({ action: 'update_task', item: card });
+          pushToGoogle({ action: 'update_task', item: card }, 'task:' + card.id);
         }
       } else if (info.kind === 'crm') {
         const lead = STATE.leads.find(l => l.id === info.id);
         if (lead && lead.stage !== newStage) {
           lead.stage = newStage;
-          lead.comments = Array.isArray(lead.comments) ? lead.comments : [];
-          lead.comments.push({ at: TODAY, text: `Etapa alterada para ${newStage}` });
           renderAll();
           if (newStage === 'fechado') celebrate();
-          pushToGoogle({ action: 'update_lead', item: lead });
+          pushToGoogle({ action: 'update_lead', item: lead }, 'lead:' + lead.id);
         }
       }
     });
@@ -1030,11 +1876,33 @@ function renderAll() {
   renderCalendar();
   renderTop3();
   renderFilters();
-  renderBoard();
+  renderTasksSection();
   renderCRM();
-  renderFollowups();
   bindDragAndDrop();
   renderIcons();
+}
+
+function handleCobreiTask(id) {
+  const card = STATE.cards.find(c => c.id === id);
+  if (!card || STATE.busyIds.has('cobrei:' + id)) return;
+  const nextDue = addDaysUtil(card.due, 2);
+  card.due = nextDue;
+  card.cobrancas = Number(card.cobrancas || 0) + 1;
+  card.stage = 'waiting';
+  renderAll();
+  showToast(`Cobrado! Próximo retorno em ${fmtDateBR(nextDue)}`);
+  pushToGoogle({ action: 'cobrei_task', id }, 'cobrei:' + id);
+}
+
+function handleCobreiLead(id) {
+  const lead = STATE.leads.find(l => l.id === id);
+  if (!lead || STATE.busyIds.has('cobreiLead:' + id)) return;
+  const nextDue = addDaysUtil(lead.nextDate, 2);
+  lead.nextDate = nextDue;
+  lead.cobrancas = Number(lead.cobrancas || 0) + 1;
+  renderAll();
+  showToast(`Follow-up registrado! Próximo em ${fmtDateBR(nextDue)}`);
+  pushToGoogle({ action: 'cobrei_lead', id }, 'cobreiLead:' + id);
 }
 
 function createOnboardingFromLead(leadId) {
@@ -1043,13 +1911,53 @@ function createOnboardingFromLead(leadId) {
   const item = {
     title: `Onboarding novo cliente: ${lead.name}`,
     front: lead.front, type: 'Entrega/prazo', priority: '2',
-    due: addDaysUtil(TODAY, 1), stage: 'todo', cobrancas: 0,
-    comments: [{ at: TODAY, text: `Gerado do CRM (${lead.id})` }]
+    due: addDaysUtil(getTodayISO(), 1), stage: 'todo', cobrancas: 0,
+    assignee: 'Comigo',
+    contact: lead.contact || '',
+    notes: `Gerado do CRM (${lead.id}) · Valor: ${fmtMoney(lead.value)}${lead.unit || ''}`,
+    comments: []
   };
   STATE.activeTab = 'tarefas';
+  STATE.taskSubMode = 'kanban';
   renderTabs();
-  pushToGoogle({ action: 'add_task', item, origem: 'CRM' });
   showToast(`Criando onboarding de ${lead.name}...`);
+  pushToGoogle({ action: 'add_task', item, origem: 'CRM' }, 'onboard:' + leadId);
+}
+
+function openSlotModal(dateIso, startMin) {
+  document.getElementById('slotTitle').value = '';
+  document.getElementById('slotDate').value = dateIso || getTodayISO();
+  document.getElementById('slotHour').value = String(startMin != null ? startMin : 540);
+  document.getElementById('slotDuration').value = '60';
+  const m = document.getElementById('slotModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+  setTimeout(() => document.getElementById('slotTitle').focus(), 60);
+}
+
+function openEventModal(idx) {
+  const ev = STATE.events[idx];
+  if (!ev) return;
+  STATE.activeEvent = ev;
+  const badge = document.getElementById('evFrontBadge');
+  badge.className = `badge-${ev.front} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5`;
+  badge.textContent = (FRONTS[ev.front] || FRONTS.Particular).label + (ev.calendarName ? ` · ${ev.calendarName}` : '');
+  document.getElementById('evTitle').textContent = ev.title;
+  document.getElementById('evTimeMeta').textContent = ev.allDay
+    ? `${fmtDateBR(ev.date)} · Dia inteiro`
+    : `${fmtDateBR(ev.date)} · ${fmtMin(ev.startMin)} – ${fmtMin(ev.endMin)}`;
+
+  const lines = [];
+  if (ev.location) lines.push(`<div><strong>Local:</strong> ${esc(ev.location)}</div>`);
+  if (ev.description) {
+    const safeDesc = esc(ev.description).replace(/(https?:\/\/[^\s<&"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline break-all">$1</a>');
+    lines.push(`<div class="whitespace-pre-wrap">${safeDesc}</div>`);
+  }
+  if (!lines.length) lines.push('<div class="tx-3">Sem detalhes adicionais neste compromisso.</div>');
+  document.getElementById('evDetailsBox').innerHTML = lines.join('');
+
+  document.getElementById('evDeleteBtn').classList.toggle('hidden', !ev.id || !ev.calendarId || ev.readonly);
+  const m = document.getElementById('eventModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
 }
 
 function openCardModal(id) {
@@ -1057,18 +1965,22 @@ function openCardModal(id) {
   if (!card) return;
   STATE.activeCardId = id;
   const badge = document.getElementById('modalFrontBadge');
-  badge.className = `badge-${card.front} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full mb-1.5`;
+  badge.className = `badge-${card.front} inline-block font-num text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-1.5`;
   badge.textContent = `${(FRONTS[card.front] || FRONTS.Particular).label} · ${card.id}`;
   document.getElementById('modalTitleInput').value = card.title;
   document.getElementById('modalStage').value = card.stage;
   document.getElementById('modalDue').value = card.due;
   document.getElementById('modalFront').value = card.front;
   document.getElementById('modalPriority').value = String(card.priority || '2');
-  document.getElementById('modalCobreiBtn').textContent = `Cobrei (+2 dias úteis) · ${card.cobrancas || 0}x`;
+  document.getElementById('modalType').value = card.type || 'Tarefa';
+  document.getElementById('modalAssignee').value = card.assignee || 'Comigo';
+  document.getElementById('modalContact').value = card.contact || '';
+  document.getElementById('modalNotes').value = card.notes || '';
+  document.getElementById('modalCobreiBtn').textContent = `Cobrei (+2d) · ${card.cobrancas || 0}x`;
   const cms = Array.isArray(card.comments) ? card.comments : [];
   document.getElementById('modalComments').innerHTML = cms.length
-    ? cms.map(cm => `<div class="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs"><div class="text-[11px] font-semibold text-slate-400 mb-0.5">${esc(cm.at)}</div><div class="text-slate-800">${esc(cm.text)}</div></div>`).join('')
-    : '<p class="text-xs text-slate-400">Sem comentários ainda.</p>';
+    ? cms.map(cm => `<div class="surf-2 rounded-xl px-3 py-2 text-xs"><div class="font-num text-[10px] font-semibold tx-3 mb-0.5">${esc(cm.at)}</div><div class="tx-1">${esc(cm.text)}</div></div>`).join('')
+    : '<p class="text-xs tx-3">Sem comentários ainda.</p>';
   const m = document.getElementById('cardModal');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
@@ -1078,13 +1990,13 @@ function openLeadModal(id) {
   if (!lead) return;
   STATE.activeLeadId = id;
   const badge = document.getElementById('leadFrontBadge');
-  badge.className = `badge-${lead.front} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full`;
+  badge.className = `badge-${lead.front} inline-block font-num text-[11px] font-bold px-2.5 py-0.5 rounded-full`;
   badge.textContent = `${(FRONTS[lead.front] || FRONTS.Otimize).label} · ${lead.id}`;
   const tBadge = document.getElementById('leadTempBadge');
-  tBadge.className = `temp-${lead.temp} inline-block text-xs font-bold px-2.5 py-0.5 rounded-full`;
+  tBadge.className = `temp-${lead.temp} inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full`;
   tBadge.textContent = lead.temp;
   document.getElementById('leadModalNameInput').value = lead.name;
-  document.getElementById('leadModalMeta').textContent = `Contato: ${lead.contact} · Origem: ${lead.origin}`;
+  document.getElementById('leadContactInput').value = lead.contact || '';
   document.getElementById('leadStage').value = lead.stage;
   document.getElementById('leadTemp').value = lead.temp;
   document.getElementById('leadOrigin').value = lead.origin;
@@ -1093,38 +2005,69 @@ function openLeadModal(id) {
   document.getElementById('leadUnit').value = lead.unit || '/mês';
   document.getElementById('leadNextDate').value = lead.nextDate;
   document.getElementById('leadNextStep').value = lead.nextStep || '';
-  document.getElementById('leadCobreiBtn').textContent = `Cobrei proposta (+2d) · ${lead.cobrancas || 0}x`;
+  document.getElementById('leadCobreiBtn').textContent = `Cobrei (+2d) · ${lead.cobrancas || 0}x`;
   document.getElementById('leadOnboardingBtn').classList.toggle('hidden', lead.stage !== 'fechado');
   const cms = Array.isArray(lead.comments) ? lead.comments : [];
   document.getElementById('leadComments').innerHTML = cms.length
-    ? cms.map(cm => `<div class="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs"><div class="text-[11px] font-semibold text-slate-400 mb-0.5">${esc(cm.at)}</div><div class="text-slate-800">${esc(cm.text)}</div></div>`).join('')
-    : '<p class="text-xs text-slate-400">Sem histórico ainda.</p>';
+    ? cms.map(cm => `<div class="surf-2 rounded-xl px-3 py-2 text-xs"><div class="font-num text-[10px] font-semibold tx-3 mb-0.5">${esc(cm.at)}</div><div class="tx-1">${esc(cm.text)}</div></div>`).join('')
+    : '<p class="text-xs tx-3">Sem histórico ainda.</p>';
   const m = document.getElementById('leadModal');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
 
 document.addEventListener('click', (e) => {
+  const jumpFup = e.target.closest('[data-jump-followups]');
+  if (jumpFup) { STATE.activeTab = 'tarefas'; STATE.taskSubMode = 'followups'; renderAll(); return; }
+
   const tabBtn = e.target.closest('[data-tab]');
   if (tabBtn) { STATE.activeTab = tabBtn.dataset.tab; renderTabs(); return; }
+
+  const showOldBtn = e.target.closest('#btnShowOldDone');
+  if (showOldBtn) { STATE.showOldDone = true; renderTasksSection(); bindDragAndDrop(); return; }
 
   const onboardBtn = e.target.closest('[data-onboard-lead]');
   if (onboardBtn) { createOnboardingFromLead(onboardBtn.dataset.onboardLead); return; }
 
+  const evBtn = e.target.closest('[data-open-event]');
+  if (evBtn) { openEventModal(Number(evBtn.dataset.openEvent)); return; }
+
   const slotBtn = e.target.closest('[data-slot-date]');
-  if (slotBtn) {
-    STATE.pendingSlot = { date: slotBtn.dataset.slotDate, label: slotBtn.dataset.slotLabel, hour: Number(slotBtn.dataset.slotHour) };
-    document.getElementById('slotLabel').textContent = `${STATE.pendingSlot.label} · ${String(STATE.pendingSlot.hour).padStart(2, '0')}:00 – ${String(STATE.pendingSlot.hour + 1).padStart(2, '0')}:00`;
-    document.getElementById('slotTitle').value = '';
-    const m = document.getElementById('slotModal');
-    m.classList.remove('hidden'); m.classList.add('flex');
+  if (slotBtn) { openSlotModal(slotBtn.dataset.slotDate, Number(slotBtn.dataset.slotHour) * 60); return; }
+
+  const waTask = e.target.closest('[data-wa-task]');
+  if (waTask) {
+    const c = STATE.cards.find(x => x.id === waTask.dataset.waTask);
+    if (c) { openWhatsAppCharge(c.contact, c.title, c.assignee); handleCobreiTask(c.id); }
     return;
   }
 
+  const waLead = e.target.closest('[data-wa-lead]');
+  if (waLead) {
+    const l = STATE.leads.find(x => x.id === waLead.dataset.waLead);
+    if (l) { openWhatsAppCharge(l.contact, `proposta / retorno (${l.name})`, 'Cliente'); handleCobreiLead(l.id); }
+    return;
+  }
+
+  const blockTask = e.target.closest('[data-block-task]');
+  if (blockTask) {
+    const c = STATE.cards.find(x => x.id === blockTask.dataset.blockTask);
+    if (c) {
+      const nowH = Math.min(17, Math.max(8, new Date().getHours() + 1));
+      openSlotModal(getTodayISO(), nowH * 60);
+      document.getElementById('slotTitle').value = `Foco: ${c.title}`;
+      document.getElementById('slotFront').value = c.front || 'Particular';
+    }
+    return;
+  }
+
+  const assigneeBtn = e.target.closest('[data-assignee-filter]');
+  if (assigneeBtn) { STATE.assigneeFilter = assigneeBtn.dataset.assigneeFilter; renderFilters(); renderTasksSection(); bindDragAndDrop(); return; }
+
   const cobreLead = e.target.closest('[data-cobrei-lead]');
-  if (cobreLead) { pushToGoogle({ action: 'cobrei_lead', id: cobreLead.dataset.cobreiLead }); return; }
+  if (cobreLead) { handleCobreiLead(cobreLead.dataset.cobreiLead); return; }
 
   const cobreBtn = e.target.closest('[data-cobrei]');
-  if (cobreBtn) { pushToGoogle({ action: 'cobrei_task', id: cobreBtn.dataset.cobrei }); return; }
+  if (cobreBtn) { handleCobreiTask(cobreBtn.dataset.cobrei); return; }
 
   const tempBtn = e.target.closest('[data-temp-filter]');
   if (tempBtn) { STATE.crmTempFilter = tempBtn.dataset.tempFilter; renderFilters(); renderCRM(); bindDragAndDrop(); return; }
@@ -1133,7 +2076,7 @@ document.addEventListener('click', (e) => {
   if (crmFilterBtn) { STATE.crmFilter = crmFilterBtn.dataset.crmFilter; renderFilters(); renderCRM(); bindDragAndDrop(); return; }
 
   const filterBtn = e.target.closest('[data-filter]');
-  if (filterBtn) { STATE.frontFilter = filterBtn.dataset.filter; renderFilters(); renderBoard(); bindDragAndDrop(); return; }
+  if (filterBtn) { STATE.frontFilter = filterBtn.dataset.filter; renderFilters(); renderTasksSection(); bindDragAndDrop(); return; }
 
   const openLead = e.target.closest('[data-open-lead]');
   if (openLead) { openLeadModal(openLead.dataset.openLead); return; }
@@ -1142,9 +2085,15 @@ document.addEventListener('click', (e) => {
   if (openEl) { openCardModal(openEl.dataset.open); return; }
 });
 
-document.getElementById('btnSyncNow').addEventListener('click', syncFromGoogle);
+document.getElementById('btnViewKanban').addEventListener('click', () => { STATE.taskSubMode = 'kanban'; renderTasksSection(); bindDragAndDrop(); });
+document.getElementById('btnViewFollowups').addEventListener('click', () => { STATE.taskSubMode = 'followups'; renderTasksSection(); });
+document.getElementById('btnSyncNow').addEventListener('click', () => syncFromGoogle(false));
 document.getElementById('calBtnDia').addEventListener('click', () => { STATE.calMode = 'dia'; renderCalendar(); });
 document.getElementById('calBtnSemana').addEventListener('click', () => { STATE.calMode = 'semana'; renderCalendar(); });
+document.getElementById('calPrevWeek').addEventListener('click', () => { STATE.weekOffset = Math.max(-1, STATE.weekOffset - 1); renderCalendar(); });
+document.getElementById('calResetWeek').addEventListener('click', () => { STATE.weekOffset = 0; renderCalendar(); });
+document.getElementById('calNextWeek').addEventListener('click', () => { STATE.weekOffset = Math.min(2, STATE.weekOffset + 1); renderCalendar(); });
+document.getElementById('toggleLostLeads').addEventListener('click', () => { STATE.showLostLeads = !STATE.showLostLeads; renderCRM(); });
 
 document.getElementById('quickForm').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -1152,13 +2101,24 @@ document.getElementById('quickForm').addEventListener('submit', (e) => {
   const txt = inp.value.trim();
   if (!txt) return;
   inp.value = '';
-  showToast('Salvando no Google...');
+  showToast('Capturando no Google...');
   pushToGoogle({ action: 'quick_add', text: txt, origem: 'Web' });
 });
 
 const closeCard = () => { STATE.activeCardId = null; document.getElementById('cardModal').classList.add('hidden'); document.getElementById('cardModal').classList.remove('flex'); };
 document.getElementById('closeCardModal').addEventListener('click', closeCard);
-document.getElementById('modalCobreiBtn').addEventListener('click', () => { if (STATE.activeCardId) { pushToGoogle({ action: 'cobrei_task', id: STATE.activeCardId }); closeCard(); } });
+document.getElementById('modalCobreiBtn').addEventListener('click', () => {
+  if (STATE.activeCardId) { const id = STATE.activeCardId; closeCard(); handleCobreiTask(id); }
+});
+document.getElementById('modalBlockCalBtn').addEventListener('click', () => {
+  const card = STATE.cards.find(c => c.id === STATE.activeCardId);
+  if (!card) return;
+  closeCard();
+  const nowH = Math.min(17, Math.max(8, new Date().getHours() + 1));
+  openSlotModal(getTodayISO(), nowH * 60);
+  document.getElementById('slotTitle').value = `Foco: ${card.title}`;
+  document.getElementById('slotFront').value = card.front || 'Particular';
+});
 document.getElementById('modalSaveFields').addEventListener('click', () => {
   const card = STATE.cards.find(c => c.id === STATE.activeCardId);
   if (!card) return;
@@ -1167,34 +2127,51 @@ document.getElementById('modalSaveFields').addEventListener('click', () => {
   card.due = document.getElementById('modalDue').value;
   card.front = document.getElementById('modalFront').value;
   card.priority = document.getElementById('modalPriority').value;
+  card.type = document.getElementById('modalType').value;
+  card.assignee = document.getElementById('modalAssignee').value || 'Comigo';
+  card.contact = document.getElementById('modalContact').value.trim();
+  card.notes = document.getElementById('modalNotes').value.trim();
   closeCard();
-  pushToGoogle({ action: 'update_task', item: card });
+  renderAll();
+  showToast('Alterações salvas!');
+  pushToGoogle({ action: 'update_task', item: card }, 'task:' + card.id);
 });
 document.getElementById('modalDeleteCard').addEventListener('click', () => {
   if (!STATE.activeCardId) return;
-  const id = STATE.activeCardId; closeCard();
-  pushToGoogle({ action: 'delete_task', id });
+  const card = STATE.cards.find(c => c.id === STATE.activeCardId);
+  if (!confirm(`Excluir permanentemente a demanda "${card ? card.title : STATE.activeCardId}"?`)) return;
+  const id = STATE.activeCardId;
+  STATE.cards = STATE.cards.filter(c => c.id !== id);
+  closeCard();
+  renderAll();
+  showToast('Demanda excluída.');
+  pushToGoogle({ action: 'delete_task', id }, 'del:' + id);
 });
 document.getElementById('addCommentBtn').addEventListener('click', () => {
   const card = STATE.cards.find(c => c.id === STATE.activeCardId);
   const inp = document.getElementById('newCommentInput');
   if (!card || !inp.value.trim()) return;
   card.comments = Array.isArray(card.comments) ? card.comments : [];
-  card.comments.push({ at: TODAY, text: inp.value.trim() });
+  card.comments.push({ at: getTodayISO(), text: inp.value.trim() });
   inp.value = '';
   openCardModal(card.id);
-  pushToGoogle({ action: 'update_task', item: card });
+  pushToGoogle({ action: 'update_task', item: card }, 'task:' + card.id);
 });
 
 const closeLead = () => { STATE.activeLeadId = null; document.getElementById('leadModal').classList.add('hidden'); document.getElementById('leadModal').classList.remove('flex'); };
 document.getElementById('closeLeadModal').addEventListener('click', closeLead);
-document.getElementById('leadCobreiBtn').addEventListener('click', () => { if (STATE.activeLeadId) { pushToGoogle({ action: 'cobrei_lead', id: STATE.activeLeadId }); closeLead(); } });
-document.getElementById('leadOnboardingBtn').addEventListener('click', () => { if (STATE.activeLeadId) { const id = STATE.activeLeadId; closeLead(); createOnboardingFromLead(id); } });
+document.getElementById('leadCobreiBtn').addEventListener('click', () => {
+  if (STATE.activeLeadId) { const id = STATE.activeLeadId; closeLead(); handleCobreiLead(id); }
+});
+document.getElementById('leadOnboardingBtn').addEventListener('click', () => {
+  if (STATE.activeLeadId) { const id = STATE.activeLeadId; closeLead(); createOnboardingFromLead(id); }
+});
 document.getElementById('leadSaveBtn').addEventListener('click', () => {
   const lead = STATE.leads.find(l => l.id === STATE.activeLeadId);
   if (!lead) return;
   const wasClosed = lead.stage === 'fechado';
   lead.name = document.getElementById('leadModalNameInput').value.trim() || lead.name;
+  lead.contact = document.getElementById('leadContactInput').value.trim();
   lead.stage = document.getElementById('leadStage').value;
   lead.temp = document.getElementById('leadTemp').value;
   lead.origin = document.getElementById('leadOrigin').value;
@@ -1205,25 +2182,38 @@ document.getElementById('leadSaveBtn').addEventListener('click', () => {
   lead.nextStep = document.getElementById('leadNextStep').value.trim();
   if (!wasClosed && lead.stage === 'fechado') celebrate();
   closeLead();
-  pushToGoogle({ action: 'update_lead', item: lead });
+  renderAll();
+  showToast('Lead atualizado!');
+  pushToGoogle({ action: 'update_lead', item: lead }, 'lead:' + lead.id);
 });
 document.getElementById('leadDeleteBtn').addEventListener('click', () => {
   if (!STATE.activeLeadId) return;
-  const id = STATE.activeLeadId; closeLead();
-  pushToGoogle({ action: 'delete_lead', id });
+  const lead = STATE.leads.find(l => l.id === STATE.activeLeadId);
+  if (!confirm(`Excluir permanentemente o lead "${lead ? lead.name : STATE.activeLeadId}"?`)) return;
+  const id = STATE.activeLeadId;
+  STATE.leads = STATE.leads.filter(l => l.id !== id);
+  closeLead();
+  renderAll();
+  showToast('Lead excluído.');
+  pushToGoogle({ action: 'delete_lead', id }, 'delLead:' + id);
 });
 document.getElementById('addLeadCommentBtn').addEventListener('click', () => {
   const lead = STATE.leads.find(l => l.id === STATE.activeLeadId);
   const inp = document.getElementById('newLeadCommentInput');
   if (!lead || !inp.value.trim()) return;
   lead.comments = Array.isArray(lead.comments) ? lead.comments : [];
-  lead.comments.push({ at: TODAY, text: inp.value.trim() });
+  lead.comments.push({ at: getTodayISO(), text: inp.value.trim() });
   inp.value = '';
   openLeadModal(lead.id);
-  pushToGoogle({ action: 'update_lead', item: lead });
+  pushToGoogle({ action: 'update_lead', item: lead }, 'lead:' + lead.id);
 });
 
 document.getElementById('btnPrimaryAdd').addEventListener('click', () => {
+  if (STATE.activeTab === 'agenda') {
+    const nowH = Math.min(17, Math.max(8, new Date().getHours() + 1));
+    openSlotModal(getTodayISO(), nowH * 60);
+    return;
+  }
   const m = document.getElementById(STATE.activeTab === 'crm' ? 'newLeadModal' : 'newTaskModal');
   m.classList.remove('hidden'); m.classList.add('flex');
 });
@@ -1234,15 +2224,22 @@ document.getElementById('cancelNewTask').addEventListener('click', closeNT);
 document.getElementById('confirmNewTask').addEventListener('click', () => {
   const title = document.getElementById('ntTitle').value.trim();
   if (!title) { showToast('Informe o título.'); return; }
+  const assignee = document.getElementById('ntAssignee').value || 'Comigo';
   const item = {
     title, front: document.getElementById('ntFront').value,
     type: document.getElementById('ntType').value,
     priority: document.getElementById('ntPriority').value,
-    due: document.getElementById('ntDue').value || TODAY,
-    stage: 'inbox', cobrancas: 0
+    due: document.getElementById('ntDue').value || getTodayISO(),
+    assignee,
+    contact: document.getElementById('ntContact').value.trim(),
+    notes: document.getElementById('ntNotes').value.trim(),
+    stage: assignee !== 'Comigo' ? 'waiting' : 'inbox', cobrancas: 0
   };
   document.getElementById('ntTitle').value = '';
-  closeNT(); STATE.activeTab = 'tarefas'; renderTabs();
+  document.getElementById('ntContact').value = '';
+  document.getElementById('ntNotes').value = '';
+  closeNT(); STATE.activeTab = 'tarefas'; STATE.taskSubMode = 'kanban'; renderAll();
+  showToast('Criando demanda...');
   pushToGoogle({ action: 'add_task', item });
 });
 
@@ -1260,14 +2257,15 @@ document.getElementById('confirmNewLead').addEventListener('click', () => {
     contact: document.getElementById('nlContact').value.trim() || 'Sem contato',
     value: Number(document.getElementById('nlValue').value || 0),
     unit: document.getElementById('nlUnit').value,
-    nextDate: document.getElementById('nlNextDate').value || TODAY,
+    nextDate: document.getElementById('nlNextDate').value || getTodayISO(),
     nextStep: document.getElementById('nlNextStep').value.trim(),
     cobrancas: 0
   };
   document.getElementById('nlName').value = '';
   document.getElementById('nlContact').value = '';
   document.getElementById('nlNextStep').value = '';
-  closeNL(); STATE.activeTab = 'crm'; renderTabs();
+  closeNL(); STATE.activeTab = 'crm'; renderAll();
+  showToast('Salvando lead...');
   pushToGoogle({ action: 'add_lead', item });
 });
 
@@ -1276,40 +2274,91 @@ document.getElementById('closeSlotModal').addEventListener('click', closeSlot);
 document.getElementById('cancelSlotModal').addEventListener('click', closeSlot);
 document.getElementById('confirmSlotBtn').addEventListener('click', () => {
   const title = document.getElementById('slotTitle').value.trim();
-  if (!title || !STATE.pendingSlot) { showToast('Informe o título.'); return; }
-  const ev = { date: STATE.pendingSlot.date, hour: STATE.pendingSlot.hour, title, front: document.getElementById('slotFront').value };
+  const date = document.getElementById('slotDate').value || getTodayISO();
+  const startMin = Number(document.getElementById('slotHour').value || 540);
+  const durationMin = Number(document.getElementById('slotDuration').value || 60);
+  if (!title) { showToast('Informe o título.'); return; }
+  const ev = { date, hour: Math.floor(startMin / 60), startMin, durationMin, title, front: document.getElementById('slotFront').value };
+  STATE.events.push(normalizeEvent({ ...ev, endMin: startMin + durationMin }));
   closeSlot();
+  renderCalendar();
+  showToast('Agendado no Google Agenda!');
   pushToGoogle({ action: 'add_event', event: ev });
 });
 
-const closeConn = () => { document.getElementById('connectModal').classList.add('hidden'); document.getElementById('connectModal').classList.remove('flex'); };
-document.getElementById('btnOpenConnect').addEventListener('click', () => {
-  document.getElementById('cfgUrlInput').value = STATE.apiUrl;
-  document.getElementById('cfgPinInput').value = STATE.apiPin;
-  const m = document.getElementById('connectModal');
-  m.classList.remove('hidden'); m.classList.add('flex');
+const closeEv = () => { STATE.activeEvent = null; document.getElementById('eventModal').classList.add('hidden'); document.getElementById('eventModal').classList.remove('flex'); };
+document.getElementById('closeEventModal').addEventListener('click', closeEv);
+document.getElementById('evCloseBtn').addEventListener('click', closeEv);
+document.getElementById('evDeleteBtn').addEventListener('click', () => {
+  if (!STATE.activeEvent) return;
+  const ev = STATE.activeEvent;
+  if (!confirm(`Excluir o compromisso "${ev.title}" da sua Google Agenda?`)) return;
+  STATE.events = STATE.events.filter(x => x !== ev);
+  closeEv();
+  renderCalendar();
+  showToast('Compromisso removido.');
+  pushToGoogle({ action: 'delete_event', event: { id: ev.id, calendarId: ev.calendarId, date: ev.date, front: ev.front } });
 });
+
+const closeConn = () => { document.getElementById('connectModal').classList.add('hidden'); document.getElementById('connectModal').classList.remove('flex'); };
+document.getElementById('btnOpenConnect').addEventListener('click', openConnectModal);
 document.getElementById('closeConnectModal').addEventListener('click', closeConn);
-document.getElementById('saveConnectBtn').addEventListener('click', () => {
-  STATE.apiUrl = document.getElementById('cfgUrlInput').value.trim();
-  STATE.apiPin = document.getElementById('cfgPinInput').value.trim();
+document.getElementById('connectForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const url = document.getElementById('cfgUrlInput').value.trim();
+  const pin = document.getElementById('cfgPinInput').value.trim();
+  if (!pin) { showToast('Digite o seu PIN.'); return; }
+  STATE.apiUrl = url || DEFAULT_API_URL;
+  STATE.apiPin = pin;
   try { localStorage.setItem('mc_api_url', STATE.apiUrl); localStorage.setItem('mc_api_pin', STATE.apiPin); } catch (_) {}
-  closeConn(); syncFromGoogle();
+  closeConn();
+  syncFromGoogle(false);
 });
 
 const closeAudit = () => { document.getElementById('auditModal').classList.add('hidden'); document.getElementById('auditModal').classList.remove('flex'); };
 document.getElementById('btnOpenAudit').addEventListener('click', () => {
   document.getElementById('auditList').innerHTML = STATE.audit.length
-    ? STATE.audit.map(a => `<div class="py-2 flex items-start gap-3"><span class="text-[11px] text-slate-400 shrink-0">${esc(a.at)}</span><div><strong class="text-slate-900">${esc(a.action)}</strong> · <span class="text-slate-600">${esc(a.detail)}</span></div></div>`).join('')
-    : '<p class="text-xs text-slate-400 py-3">Sem registros ainda.</p>';
+    ? STATE.audit.map(a => `<div class="py-2.5 flex items-start gap-3"><span class="font-num text-[11px] tx-3 shrink-0">${esc(a.at)}</span><div><strong class="tx-1">${esc(a.action)}</strong> · <span class="tx-2">${esc(a.detail)}</span></div></div>`).join('')
+    : '<p class="text-xs tx-3 py-3">Sem registros ainda.</p>';
   const m = document.getElementById('auditModal');
   m.classList.remove('hidden'); m.classList.add('flex');
 });
 document.getElementById('closeAuditModal').addEventListener('click', closeAudit);
 
+document.getElementById('globalSearchInput').addEventListener('input', (e) => {
+  STATE.searchQuery = e.target.value || '';
+  renderTasksSection();
+  renderCRM();
+  bindDragAndDrop();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    [closeCard, closeLead, closeNT, closeNL, closeSlot, closeEv, closeConn, closeAudit].forEach(fn => fn());
+    return;
+  }
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+    e.preventDefault();
+    document.getElementById('globalSearchInput').focus();
+  }
+});
+
+document.getElementById('newCommentInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addCommentBtn').click(); }
+});
+document.getElementById('newLeadCommentInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addLeadCommentBtn').click(); }
+});
+
+populateHourSelect();
+populateAssigneeSelects();
 loadSavedConfig();
+syncThemeIcon();
 renderAll();
-syncFromGoogle();
+syncFromGoogle(true);
+setInterval(() => { if (STATE.activeTab === 'agenda' && !STATE.dragInfo) renderCalendar(); }, 30000);
 </script>
 </body>
 </html>
